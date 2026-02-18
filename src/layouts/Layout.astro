@@ -18,7 +18,6 @@ const withBase = (path: string) => {
 };
 
 const normalize = (p: string) => p.replace(/\/+$/, "") || "/";
-
 const isActive = (href: string) => {
   const full = withBase(href);
   return normalize(currentPath) === normalize(full);
@@ -28,7 +27,6 @@ const navItems = [
   { label: "home", href: "/", icon: "theme/icons/home.gif" },
   { label: "blog", href: "/blog/", icon: "theme/icons/blog.gif" },
   { label: "rpg", href: "/rpg/", icon: "theme/icons/rpg.gif" },
-  // Si después querés mostrar /admin:
   // { label: "admin", href: "/admin/", icon: "theme/icons/admin.gif" },
 ];
 ---
@@ -43,40 +41,35 @@ const navItems = [
 
     <style>
       :root{
-        --bg:#06060a;
+        --bg:#040409;
         --text:rgba(255,255,255,.92);
-        --muted:rgba(255,255,255,.62);
+        --muted:rgba(255,255,255,.60);
 
-        --surface:rgba(255,255,255,.06);
-        --surface2:rgba(255,255,255,.10);
-        --stroke:rgba(255,255,255,.14);
-        --stroke2:rgba(160,160,255,.35);
+        --glass: rgba(255,255,255,.06);
+        --glass2: rgba(255,255,255,.10);
+        --stroke: rgba(255,255,255,.14);
+        --stroke2: rgba(160,160,255,.35);
 
-        --shadow:0 18px 55px rgba(0,0,0,.60);
-        --radius:22px;
-        --radiusSm:16px;
+        --shadow: 0 18px 55px rgba(0,0,0,.65);
+        --radius: 22px;
 
-        --max: 1040px;
+        --max: 1120px;
+        --navW: 240px;
       }
 
       html,body{height:100%;}
       body{
         margin:0;
         color:var(--text);
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
         background:
-          radial-gradient(1100px 750px at 70% 18%, rgba(120,120,255,.16), transparent 58%),
-          radial-gradient(900px 650px at 18% 82%, rgba(0,255,200,.10), transparent 58%),
+          radial-gradient(1100px 750px at 70% 18%, rgba(120,120,255,.14), transparent 58%),
+          radial-gradient(900px 650px at 18% 82%, rgba(0,255,200,.08), transparent 58%),
           var(--bg);
       }
 
-      .wrap{
-        min-height:100%;
-        display:flex;
-        flex-direction:column;
-      }
+      .wrap{ min-height:100%; display:flex; flex-direction:column; }
 
-      /* ===== Header ===== */
       header{
         padding:18px 18px 10px;
         display:flex;
@@ -91,17 +84,8 @@ const navItems = [
         gap:14px;
       }
 
-      .brand h1{
-        margin:0;
-        font-size:18px;
-        letter-spacing:.3px;
-      }
-
-      .brand p{
-        margin:6px 0 0;
-        font-size:13px;
-        color:var(--muted);
-      }
+      .brand h1{ margin:0; font-size:18px; letter-spacing:.3px; }
+      .brand p{ margin:6px 0 0; font-size:13px; color:var(--muted); }
 
       .pill{
         font-size:12px;
@@ -113,24 +97,42 @@ const navItems = [
         white-space:nowrap;
       }
 
-      /* ===== Top nav (desktop) ===== */
-      .topnavWrap{
+      main{
+        flex:1;
         display:flex;
         justify-content:center;
-        padding:8px 18px 14px;
+        padding:12px 18px 22px;
       }
 
-      nav.topnav{
+      .shell{
         width:min(var(--max), 100%);
-        background:var(--surface);
+        display:grid;
+        grid-template-columns: 1fr var(--navW);
+        gap:18px;
+        align-items:start;
+      }
+
+      /* CONTENIDO */
+      .content{
+        background:var(--glass);
         border:1px solid var(--stroke);
         border-radius:var(--radius);
         box-shadow:var(--shadow);
+        padding:18px;
         backdrop-filter: blur(10px);
-        padding:10px;
-        display:flex;
-        align-items:center;
-        gap:10px;
+        min-height: 520px;
+      }
+
+      /* NAV “launcher” a la derecha */
+      nav{
+        position:sticky;
+        top:14px;
+        background:var(--glass);
+        border:1px solid var(--stroke);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow);
+        padding:14px;
+        backdrop-filter: blur(10px);
       }
 
       .navTitle{
@@ -138,90 +140,72 @@ const navItems = [
         color:var(--muted);
         text-transform:uppercase;
         letter-spacing:.14em;
-        margin-left:8px;
-        margin-right:6px;
-        opacity:.9;
+        margin:2px 4px 12px;
       }
 
-      .navRow{
-        display:flex;
-        gap:10px;
-        flex-wrap:wrap;
+      .navGrid{
+        display:grid;
+        gap:14px;
       }
 
-      .navBtn{
-        display:flex;
-        align-items:center;
-        gap:10px;
-        padding:10px 12px;
-        border-radius:999px;
+      .navCard{
+        display:grid;
+        grid-template-rows: 168px auto;
+        border-radius:20px;
         border:1px solid rgba(255,255,255,.12);
-        background: rgba(255,255,255,.04);
+        background: rgba(0,0,0,.22);
+        overflow:hidden;
         text-decoration:none;
         color:var(--text);
-        transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+        transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
       }
 
-      .navBtn:hover{
+      .navCard:hover{
         transform: translateY(-1px);
-        background: rgba(255,255,255,.07);
+        background: rgba(255,255,255,.06);
         border-color: rgba(255,255,255,.20);
       }
 
-      .navBtn.active{
-        background: var(--surface2);
+      .navCard.active{
+        background: var(--glass2);
         border-color: var(--stroke2);
       }
 
-      .navIcon{
-        width:34px;
-        height:34px;
-        border-radius:999px;
+      .thumb{
         display:grid;
         place-items:center;
-        background: rgba(0,0,0,.22);
-        border:1px solid rgba(255,255,255,.12);
-        overflow:hidden;
-        flex:0 0 auto;
+        background: rgba(0,0,0,.28);
       }
 
-      .navIcon img{
-        width:22px;
-        height:22px;
-        object-fit:contain;
+      .thumb img{
+        width: 108px;
+        height: 108px;
+        object-fit: contain;
       }
 
-      .navLabel{
-        font-size:13px;
-        text-transform:capitalize;
-        letter-spacing:.2px;
-        opacity:.92;
-      }
-
-      /* ===== Main content ===== */
-      main{
-        flex:1;
+      .cap{
+        padding:10px 12px 12px;
         display:flex;
-        justify-content:center;
-        padding:0 18px 28px;
+        justify-content:space-between;
+        align-items:center;
+        gap:10px;
       }
 
-      .content{
-        width:min(var(--max), 100%);
-        background:var(--surface);
-        border:1px solid var(--stroke);
-        border-radius:var(--radius);
-        box-shadow:var(--shadow);
-        padding:18px;
-        backdrop-filter: blur(10px);
+      .cap strong{
+        font-size:14px;
+        text-transform:lowercase;
+        letter-spacing:.2px;
       }
 
-      /* Tipografía dentro del contenido */
-      .content :global(h1){ margin: 0 0 10px; font-size: 26px; }
-      .content :global(h2){ margin: 18px 0 10px; font-size: 20px; }
-      .content :global(p){ margin: 10px 0; color: rgba(255,255,255,.82); line-height: 1.6; }
-      .content :global(a){ color: rgba(180,200,255,.92); }
-      .content :global(hr){ border: 0; height: 1px; background: rgba(255,255,255,.10); margin: 18px 0; }
+      .dot{
+        width:8px;
+        height:8px;
+        border-radius:999px;
+        background: rgba(255,255,255,.25);
+      }
+      .navCard.active .dot{
+        background: rgba(140,200,255,.75);
+      }
 
       footer{
         padding:14px 18px 18px;
@@ -231,76 +215,18 @@ const navItems = [
         font-size:12px;
       }
 
-      /* ===== Mobile dock ===== */
-      .dock{
-        display:none;
-      }
-
-      @media (max-width: 900px){
+      /* MOBILE */
+      @media (max-width: 980px){
         .pill{ display:none; }
-
-        nav.topnav{
-          border-radius: var(--radiusSm);
-        }
-
-        .navTitle{
-          display:none;
-        }
-
-        .navBtn{
-          padding:10px 12px;
-        }
-
-        .navLabel{
-          display:none;
-        }
-
-        /* En mobile, conviene dock abajo */
-        .topnavWrap{
-          padding-bottom: 10px;
-        }
-
-        .dock{
-          display:flex;
-          position:fixed;
-          left:50%;
-          transform:translateX(-50%);
-          bottom:14px;
-          width:min(520px, calc(100% - 24px));
-          background: rgba(10,10,16,.78);
-          border:1px solid rgba(255,255,255,.14);
-          border-radius: 999px;
-          box-shadow: 0 14px 40px rgba(0,0,0,.60);
-          backdrop-filter: blur(12px);
-          padding:10px;
+        .shell{ grid-template-columns: 1fr; }
+        nav{ position:relative; top:0; order:-1; }
+        .navGrid{
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap:10px;
-          justify-content:space-around;
-          z-index: 50;
         }
-
-        .dock a{
-          width:52px;
-          height:52px;
-          border-radius:999px;
-          display:grid;
-          place-items:center;
-          border:1px solid rgba(255,255,255,.12);
-          background: rgba(255,255,255,.06);
-        }
-
-        .dock a.active{
-          background: rgba(255,255,255,.12);
-          border-color: rgba(160,160,255,.35);
-        }
-
-        .dock img{
-          width:26px;
-          height:26px;
-          object-fit:contain;
-        }
-
-        /* para que el contenido no quede tapado por el dock */
-        main{ padding-bottom: 92px; }
+        .navCard{ grid-template-rows: 92px auto; }
+        .thumb img{ width:54px; height:54px; }
+        .cap{ padding:8px 10px; }
       }
     </style>
   </head>
@@ -317,42 +243,37 @@ const navItems = [
         </div>
       </header>
 
-      <div class="topnavWrap">
-        <nav class="topnav" aria-label="Navegación principal">
-          <div class="navTitle">Navegación</div>
-          <div class="navRow">
-            {navItems.map((item) => (
-              <a
-                class={"navBtn" + (isActive(item.href) ? " active" : "")}
-                href={withBase(item.href)}
-              >
-                <span class="navIcon">
-                  <img src={withBase(item.icon)} alt={item.label} loading="eager" />
-                </span>
-                <span class="navLabel">{item.label}</span>
-              </a>
-            ))}
-          </div>
-        </nav>
-      </div>
-
       <main>
-        <section class="content">
-          <slot />
-        </section>
+        <div class="shell">
+          <section class="content">
+            <slot />
+          </section>
+
+          <nav aria-label="Navegación">
+            <div class="navTitle">Navegación</div>
+            <div class="navGrid">
+              {navItems.map((item) => (
+                <a
+                  class={"navCard" + (isActive(item.href) ? " active" : "")}
+                  href={withBase(item.href)}
+                >
+                  <div class="thumb">
+                    <img src={withBase(item.icon)} alt={item.label} loading="eager" />
+                  </div>
+                  <div class="cap">
+                    <strong>{item.label}</strong>
+                    <span class="dot"></span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </nav>
+        </div>
       </main>
 
       <footer>
         <div>Jaira Life RPG · GitHub Pages</div>
       </footer>
-
-      <nav class="dock" aria-label="Dock móvil">
-        {navItems.map((item) => (
-          <a class={isActive(item.href) ? "active" : ""} href={withBase(item.href)}>
-            <img src={withBase(item.icon)} alt={item.label} loading="eager" />
-          </a>
-        ))}
-      </nav>
     </div>
   </body>
 </html>
