@@ -1,13 +1,13 @@
-<div style="padding:14px;border:1px solid rgba(255,255,255,.25);border-radius:14px;background:rgba(0,255,120,.12);margin-bottom:16px;">
-  <div style="font-size:28px;font-weight:800;color:#9dffb4;">✅ CAMBIO EN VIVO</div>
-  <div style="opacity:.85;">Si estás viendo esto, GitHub Pages está publicando tus commits.</div>
-</div>
-
 ---
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="Home">
+<Layout title="Home" description="Tu dashboard personal">
+  <div style="padding:14px;border:1px solid rgba(255,255,255,.25);border-radius:14px;background:rgba(0,255,120,.12);margin-bottom:16px;">
+    <div style="font-size:28px;font-weight:800;color:#9dffb4;">✅ CAMBIO EN VIVO</div>
+    <div style="opacity:.85;">Si estás viendo esto, GitHub Pages está publicando tus commits.</div>
+  </div>
+
   <section class="dash">
     <div class="top">
       <div class="focus card">
@@ -34,7 +34,7 @@ import Layout from "../layouts/Layout.astro";
               <option>side quest</option>
               <option>habit</option>
             </select>
-            <button class="btn">guardar</button>
+            <button class="btn" type="button">guardar</button>
           </div>
           <p class="hint">Esto por ahora es visual. Después lo conectamos al backend.</p>
         </form>
@@ -53,8 +53,8 @@ import Layout from "../layouts/Layout.astro";
         </ul>
 
         <div class="actions">
-          <button class="btn ghost">editar</button>
-          <button class="btn">marcar completado</button>
+          <button class="btn ghost" type="button">editar</button>
+          <button class="btn" type="button">marcar completado</button>
         </div>
       </article>
 
@@ -92,8 +92,8 @@ import Layout from "../layouts/Layout.astro";
         <textarea class="textarea" placeholder="Escribí lo que tengas en la cabeza..."></textarea>
 
         <div class="actions">
-          <button class="btn ghost">limpiar</button>
-          <button class="btn">guardar</button>
+          <button class="btn ghost" type="button">limpiar</button>
+          <button class="btn" type="button">guardar</button>
         </div>
       </article>
     </div>
@@ -101,23 +101,23 @@ import Layout from "../layouts/Layout.astro";
 
   <style>
     .dash{
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      padding-top: 6px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      padding-top:6px;
     }
 
     .top{
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 18px;
-      align-items: stretch;
+      display:grid;
+      grid-template-columns:1.4fr 1fr;
+      gap:18px;
+      align-items:stretch;
     }
 
     .grid{
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:18px;
     }
 
     .card{
@@ -125,7 +125,7 @@ import Layout from "../layouts/Layout.astro";
       border: 1px solid rgba(255,255,255,0.10);
       box-shadow: 0 12px 30px rgba(0,0,0,0.25);
       border-radius: 18px;
-      padding: 16px 16px;
+      padding: 16px;
     }
 
     .kicker{
@@ -151,10 +151,10 @@ import Layout from "../layouts/Layout.astro";
     .muted{ opacity: 0.85; margin: 0; }
 
     .chips{
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
     }
 
     .chip{
@@ -178,10 +178,7 @@ import Layout from "../layouts/Layout.astro";
       outline: none;
     }
 
-    .textarea{
-      min-height: 120px;
-      resize: vertical;
-    }
+    .textarea{ min-height: 120px; resize: vertical; }
 
     .btn{
       border-radius: 12px;
@@ -199,9 +196,7 @@ import Layout from "../layouts/Layout.astro";
       border-color: rgba(255,255,255,0.20);
     }
 
-    .btn.ghost{
-      background: rgba(0,0,0,0.18);
-    }
+    .btn.ghost{ background: rgba(0,0,0,0.18); }
 
     .hint{
       margin: 6px 0 0;
@@ -210,11 +205,11 @@ import Layout from "../layouts/Layout.astro";
     }
 
     .list{
-      list-style: none;
-      padding: 0;
-      margin: 10px 0 0;
-      display: grid;
-      gap: 10px;
+      list-style:none;
+      padding:0;
+      margin:10px 0 0;
+      display:grid;
+      gap:10px;
     }
 
     .dot{
@@ -227,39 +222,39 @@ import Layout from "../layouts/Layout.astro";
     }
 
     .actions{
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      margin-top:12px;
     }
 
     .stats{
-      display: grid;
-      gap: 12px;
-      margin-top: 8px;
+      display:grid;
+      gap:12px;
+      margin-top:8px;
     }
 
     .stat{
-      display: grid;
+      display:grid;
       grid-template-columns: 90px 1fr 48px;
-      align-items: center;
-      gap: 10px;
+      align-items:center;
+      gap:10px;
     }
 
     .stat .label{ font-size: 12px; opacity: 0.85; text-transform: lowercase; }
     .stat .value{ font-size: 12px; opacity: 0.85; text-align: right; }
 
     .bar{
-      height: 10px;
-      border-radius: 999px;
+      height:10px;
+      border-radius:999px;
       background: rgba(255,255,255,0.10);
-      overflow: hidden;
+      overflow:hidden;
       border: 1px solid rgba(255,255,255,0.10);
     }
 
     .fill{
-      height: 100%;
+      height:100%;
       background: rgba(255,255,255,0.35);
-      border-radius: 999px;
+      border-radius:999px;
     }
 
     @media (max-width: 980px){
