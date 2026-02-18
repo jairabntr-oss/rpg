@@ -1,14 +1,36 @@
 ---
-// src/layouts/Layout.astro
-import siteConfig from "../theme/siteconfig";
+type Props = {
+  title?: string;
+  description?: string;
+};
 
-const props = Astro.props ?? {};
-const pageTitle = props.title ?? siteConfig.title;
-const description = props.description ?? siteConfig.tagline;
+const {
+  title = "Jaira Life RPG",
+  description = "Tu universo personal gamificado",
+} = Astro.props as Props;
 
-const navItems = Array.isArray(siteConfig.nav) ? siteConfig.nav : [];
-const bg = siteConfig.images?.background ?? "/theme/bg.jpg";
-const headerSrc = siteConfig.images?.header ?? "/theme/header.png";
+const currentPath = Astro.url.pathname;
+const BASE = import.meta.env.BASE_URL;
+
+const withBase = (path: string) => {
+  const clean = path.replace(/^\//, "");
+  return `${BASE}${clean}`;
+};
+
+const normalize = (p: string) => p.replace(/\/+$/, "") || "/";
+
+const isActive = (href: string) => {
+  const full = withBase(href);
+  return normalize(currentPath) === normalize(full);
+};
+
+const navItems = [
+  { label: "home", href: "/", icon: "theme/icons/home.gif" },
+  { label: "blog", href: "/blog/", icon: "theme/icons/blog.gif" },
+  { label: "rpg", href: "/rpg/", icon: "theme/icons/rpg.gif" },
+  // Si después querés mostrar /admin:
+  // { label: "admin", href: "/admin/", icon: "theme/icons/admin.gif" },
+];
 ---
 
 <!doctype html>
@@ -16,177 +38,321 @@ const headerSrc = siteConfig.images?.header ?? "/theme/header.png";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    <title>{title}</title>
 
-    <!-- ✅ CSS INLINE (SIEMPRE APLICA) -->
     <style>
       :root{
-        --max-w: 980px;
-        --pad: 18px;
+        --bg:#06060a;
+        --text:rgba(255,255,255,.92);
+        --muted:rgba(255,255,255,.62);
 
-        /* Header como “antes” (chico y controlado) */
-        --header-max-w: 420px;
-        --header-max-h: 160px;
+        --surface:rgba(255,255,255,.06);
+        --surface2:rgba(255,255,255,.10);
+        --stroke:rgba(255,255,255,.14);
+        --stroke2:rgba(160,160,255,.35);
 
-        /* Íconos grandes, proporcionales */
-        --icon-box: 170px;
-        --icon-padding: 8px;
-        --radius: 18px;
+        --shadow:0 18px 55px rgba(0,0,0,.60);
+        --radius:22px;
+        --radiusSm:16px;
+
+        --max: 1040px;
       }
 
-      *{ box-sizing: border-box; }
-      html, body{ height: 100%; }
-
+      html,body{height:100%;}
       body{
-        margin: 0;
-        min-height: 100vh;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-        color: rgba(255,255,255,0.92);
-
-        /* ✅ Fondo SIEMPRE visible, aunque falle la imagen */
-        background-color: #050505;
-        background-image: var(--bg-image);
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-      }
-
-      .overlay{
-        min-height: 100vh;
-        background: rgba(0,0,0,0.35);
-        backdrop-filter: blur(1px);
+        margin:0;
+        color:var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background:
+          radial-gradient(1100px 750px at 70% 18%, rgba(120,120,255,.16), transparent 58%),
+          radial-gradient(900px 650px at 18% 82%, rgba(0,255,200,.10), transparent 58%),
+          var(--bg);
       }
 
       .wrap{
-        width: 100%;
-        max-width: var(--max-w);
-        margin: 0 auto;
-        padding: 18px var(--pad) 40px;
+        min-height:100%;
+        display:flex;
+        flex-direction:column;
       }
 
+      /* ===== Header ===== */
       header{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
+        padding:18px 18px 10px;
+        display:flex;
+        justify-content:center;
       }
 
-      .header-img{
-        width: min(var(--header-max-w), 92vw);
-        max-height: var(--header-max-h);
-        height: auto;
-        display: block;
-        object-fit: contain;
+      .brand{
+        width:min(var(--max), 100%);
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-end;
+        gap:14px;
       }
 
-      nav{
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 18px;
-        margin-top: 6px;
-        align-items: start;
+      .brand h1{
+        margin:0;
+        font-size:18px;
+        letter-spacing:.3px;
       }
 
-      .nav-item{
-        display: grid;
-        place-items: center;
-        text-decoration: none;
-        color: inherit;
+      .brand p{
+        margin:6px 0 0;
+        font-size:13px;
+        color:var(--muted);
       }
 
-      .icon-box{
-        width: var(--icon-box);
-        height: var(--icon-box);
-        border-radius: var(--radius);
-        display: grid;
-        place-items: center;
-        background: rgba(0,0,0,0.28);
-        border: 1px solid rgba(255,255,255,0.10);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      .pill{
+        font-size:12px;
+        color:var(--muted);
+        border:1px solid var(--stroke);
+        background:rgba(255,255,255,.04);
+        padding:8px 10px;
+        border-radius:999px;
+        white-space:nowrap;
+      }
+
+      /* ===== Top nav (desktop) ===== */
+      .topnavWrap{
+        display:flex;
+        justify-content:center;
+        padding:8px 18px 14px;
+      }
+
+      nav.topnav{
+        width:min(var(--max), 100%);
+        background:var(--surface);
+        border:1px solid var(--stroke);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow);
+        backdrop-filter: blur(10px);
+        padding:10px;
+        display:flex;
+        align-items:center;
+        gap:10px;
+      }
+
+      .navTitle{
+        font-size:12px;
+        color:var(--muted);
+        text-transform:uppercase;
+        letter-spacing:.14em;
+        margin-left:8px;
+        margin-right:6px;
+        opacity:.9;
+      }
+
+      .navRow{
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+      }
+
+      .navBtn{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:10px 12px;
+        border-radius:999px;
+        border:1px solid rgba(255,255,255,.12);
+        background: rgba(255,255,255,.04);
+        text-decoration:none;
+        color:var(--text);
         transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
       }
 
-      .nav-item:hover .icon-box{
-        transform: translateY(-2px);
-        background: rgba(0,0,0,0.34);
-        border-color: rgba(255,255,255,0.16);
+      .navBtn:hover{
+        transform: translateY(-1px);
+        background: rgba(255,255,255,.07);
+        border-color: rgba(255,255,255,.20);
       }
 
-      .icon{
-        width: 100%;
-        height: 100%;
-        padding: var(--icon-padding);
-        object-fit: contain;
-        display: block;
+      .navBtn.active{
+        background: var(--surface2);
+        border-color: var(--stroke2);
       }
 
-      .label{
-        margin-top: 10px;
-        font-size: 14px;
-        letter-spacing: 0.3px;
-        opacity: 0.92;
-        text-align: center;
-        text-transform: lowercase;
+      .navIcon{
+        width:34px;
+        height:34px;
+        border-radius:999px;
+        display:grid;
+        place-items:center;
+        background: rgba(0,0,0,.22);
+        border:1px solid rgba(255,255,255,.12);
+        overflow:hidden;
+        flex:0 0 auto;
       }
 
-      main{ margin-top: 22px; }
-      .content{ padding: 12px 6px; }
-      h1,h2,h3,p{ margin: 0 0 10px; }
+      .navIcon img{
+        width:22px;
+        height:22px;
+        object-fit:contain;
+      }
 
-      @media (max-width: 700px){
-        :root{
-          --header-max-w: 380px;
-          --header-max-h: 150px;
-          --icon-box: 150px;
+      .navLabel{
+        font-size:13px;
+        text-transform:capitalize;
+        letter-spacing:.2px;
+        opacity:.92;
+      }
+
+      /* ===== Main content ===== */
+      main{
+        flex:1;
+        display:flex;
+        justify-content:center;
+        padding:0 18px 28px;
+      }
+
+      .content{
+        width:min(var(--max), 100%);
+        background:var(--surface);
+        border:1px solid var(--stroke);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow);
+        padding:18px;
+        backdrop-filter: blur(10px);
+      }
+
+      /* Tipografía dentro del contenido */
+      .content :global(h1){ margin: 0 0 10px; font-size: 26px; }
+      .content :global(h2){ margin: 18px 0 10px; font-size: 20px; }
+      .content :global(p){ margin: 10px 0; color: rgba(255,255,255,.82); line-height: 1.6; }
+      .content :global(a){ color: rgba(180,200,255,.92); }
+      .content :global(hr){ border: 0; height: 1px; background: rgba(255,255,255,.10); margin: 18px 0; }
+
+      footer{
+        padding:14px 18px 18px;
+        display:flex;
+        justify-content:center;
+        color:var(--muted);
+        font-size:12px;
+      }
+
+      /* ===== Mobile dock ===== */
+      .dock{
+        display:none;
+      }
+
+      @media (max-width: 900px){
+        .pill{ display:none; }
+
+        nav.topnav{
+          border-radius: var(--radiusSm);
         }
-      }
 
-      @media (max-width: 520px){
-        :root{
-          --header-max-w: 340px;
-          --header-max-h: 140px;
-          --icon-box: 132px;
-          --icon-padding: 7px;
+        .navTitle{
+          display:none;
         }
-        nav{ gap: 12px; }
-        .label{ font-size: 13px; }
+
+        .navBtn{
+          padding:10px 12px;
+        }
+
+        .navLabel{
+          display:none;
+        }
+
+        /* En mobile, conviene dock abajo */
+        .topnavWrap{
+          padding-bottom: 10px;
+        }
+
+        .dock{
+          display:flex;
+          position:fixed;
+          left:50%;
+          transform:translateX(-50%);
+          bottom:14px;
+          width:min(520px, calc(100% - 24px));
+          background: rgba(10,10,16,.78);
+          border:1px solid rgba(255,255,255,.14);
+          border-radius: 999px;
+          box-shadow: 0 14px 40px rgba(0,0,0,.60);
+          backdrop-filter: blur(12px);
+          padding:10px;
+          gap:10px;
+          justify-content:space-around;
+          z-index: 50;
+        }
+
+        .dock a{
+          width:52px;
+          height:52px;
+          border-radius:999px;
+          display:grid;
+          place-items:center;
+          border:1px solid rgba(255,255,255,.12);
+          background: rgba(255,255,255,.06);
+        }
+
+        .dock a.active{
+          background: rgba(255,255,255,.12);
+          border-color: rgba(160,160,255,.35);
+        }
+
+        .dock img{
+          width:26px;
+          height:26px;
+          object-fit:contain;
+        }
+
+        /* para que el contenido no quede tapado por el dock */
+        main{ padding-bottom: 92px; }
       }
     </style>
   </head>
 
-  <!-- ✅ Truco PRO: metemos la URL en una CSS variable, PostCSS no la “rompe” -->
-  <body style={`--bg-image: url("${bg}");`}>
-    <div class="overlay">
-      <div class="wrap">
-        <header>
-          <img class="header-img" src={headerSrc} alt={siteConfig.title} loading="eager" />
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <div>
+            <h1>{title}</h1>
+            <p>{description}</p>
+          </div>
+          <div class="pill">{BASE}</div>
+        </div>
+      </header>
 
-          <nav aria-label="Navegación principal">
+      <div class="topnavWrap">
+        <nav class="topnav" aria-label="Navegación principal">
+          <div class="navTitle">Navegación</div>
+          <div class="navRow">
             {navItems.map((item) => (
               <a
-                class="nav-item"
-                href={item.href}
-                title={item.label}
-                aria-label={item.label}
-                style={`grid-column: ${item.order};`}
+                class={"navBtn" + (isActive(item.href) ? " active" : "")}
+                href={withBase(item.href)}
               >
-                <div class="icon-box">
-                  <img class="icon" src={item.icon} alt={item.label} loading="lazy" />
-                </div>
-                <div class="label">{item.label}</div>
+                <span class="navIcon">
+                  <img src={withBase(item.icon)} alt={item.label} loading="eager" />
+                </span>
+                <span class="navLabel">{item.label}</span>
               </a>
             ))}
-          </nav>
-        </header>
-
-        <main>
-          <div class="content">
-            <slot />
           </div>
-        </main>
+        </nav>
       </div>
+
+      <main>
+        <section class="content">
+          <slot />
+        </section>
+      </main>
+
+      <footer>
+        <div>Jaira Life RPG · GitHub Pages</div>
+      </footer>
+
+      <nav class="dock" aria-label="Dock móvil">
+        {navItems.map((item) => (
+          <a class={isActive(item.href) ? "active" : ""} href={withBase(item.href)}>
+            <img src={withBase(item.icon)} alt={item.label} loading="eager" />
+          </a>
+        ))}
+      </nav>
     </div>
   </body>
 </html>
