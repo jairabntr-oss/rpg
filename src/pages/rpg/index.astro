@@ -1,0 +1,1301 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="RPG">
+  <section class="ui">
+    <!-- TOP BAR -->
+    <header class="top frame">
+      <div class="top-left">
+        <div class="badge">solo leveling system</div>
+        <div class="tiny">habit tracker • real life mode</div>
+      </div>
+
+      <div class="top-mid">
+        <div class="title">SYSTEM</div>
+        <div class="subtitle">level up dashboard</div>
+      </div>
+
+      <div class="top-right">
+        <button class="btn ghost" id="btnUndo" type="button">undo</button>
+        <button class="btn ghost" id="btnExport" type="button">export</button>
+        <button class="btn danger" id="btnReset" type="button">reset data</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- LEFT SIDEBAR -->
+      <aside class="left">
+        <!-- Character / XP -->
+        <section class="card frame">
+          <div class="head">
+            <div class="kicker">character</div>
+            <div class="chip" id="rankChip">rank: e</div>
+          </div>
+
+          <div class="char">
+            <div class="avatar" aria-hidden="true"></div>
+            <div class="char-meta">
+              <div class="name">JAIRA</div>
+              <div class="tiny">status: active • system online</div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="statrow">
+              <span class="label">level</span>
+              <span class="big" id="lvl">1</span>
+            </div>
+            <div class="statrow">
+              <span class="label">xp total</span>
+              <span class="val" id="xp">0</span>
+            </div>
+
+            <div class="xpbox">
+              <div class="xpmeta">
+                <span class="tiny"><b id="xpInLevel">0</b> / <b id="xpNeed">100</b> xp</span>
+                <span class="tiny" id="xpPct">0%</span>
+              </div>
+              <div class="bar">
+                <div class="fill" id="fill" style="width:0%"></div>
+              </div>
+            </div>
+
+            <div class="quickxp">
+              <button class="btn" id="btnMini" type="button">+10</button>
+              <button class="btn" id="btnDaily" type="button">+20</button>
+              <button class="btn" id="btnFocus" type="button">+50</button>
+            </div>
+
+            <!-- Manual XP adjust (to fix mistakes) -->
+            <div class="adjust">
+              <div class="label">adjust xp</div>
+              <div class="adjustRow">
+                <input class="input" id="xpAdjust" type="number" value="10" min="1" step="1" />
+                <button class="btn" id="btnAddXp" type="button">+</button>
+                <button class="btn ghost" id="btnSubXp" type="button">-</button>
+              </div>
+              <div class="tiny hint">si te equivocás, lo corregís acá. y podés “undo”.</div>
+            </div>
+
+            <div class="warning">
+              <div class="warnTitle">warning</div>
+              <div class="tiny">real life mode active • pero vos podés corregir</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Skills (Radar + Bars) -->
+        <section class="card frame">
+          <div class="head">
+            <div class="kicker">skill points</div>
+            <div class="tiny" id="spInfo">points: 0</div>
+          </div>
+
+          <div class="skillsWrap">
+            <div class="radar">
+              <svg viewBox="0 0 220 220" width="100%" height="100%" aria-label="skills radar">
+                <defs>
+                  <radialGradient id="glow" cx="50%" cy="50%" r="60%">
+                    <stop offset="0%" stop-color="rgba(175,135,255,0.35)" />
+                    <stop offset="70%" stop-color="rgba(175,135,255,0.12)" />
+                    <stop offset="100%" stop-color="rgba(175,135,255,0.0)" />
+                  </radialGradient>
+                </defs>
+
+                <circle cx="110" cy="110" r="88" fill="none" stroke="rgba(175,135,255,0.14)" />
+                <circle cx="110" cy="110" r="66" fill="none" stroke="rgba(175,135,255,0.10)" />
+                <circle cx="110" cy="110" r="44" fill="none" stroke="rgba(175,135,255,0.08)" />
+                <circle cx="110" cy="110" r="22" fill="none" stroke="rgba(175,135,255,0.06)" />
+
+                <line x1="110" y1="22"  x2="110" y2="198" stroke="rgba(175,135,255,0.10)" />
+                <line x1="22"  y1="110" x2="198" y2="110" stroke="rgba(175,135,255,0.10)" />
+                <line x1="45"  y1="45"  x2="175" y2="175" stroke="rgba(175,135,255,0.08)" />
+                <line x1="175" y1="45"  x2="45"  y2="175" stroke="rgba(175,135,255,0.08)" />
+
+                <circle cx="110" cy="110" r="88" fill="url(#glow)" opacity="0.9" />
+
+                <!-- polygon filled by JS -->
+                <polygon id="radarPoly" points="110,110 110,110 110,110 110,110 110,110"
+                  fill="rgba(175,135,255,0.20)"
+                  stroke="rgba(175,135,255,0.55)"
+                  stroke-width="2" />
+                <circle id="radarDot" cx="110" cy="110" r="3" fill="rgba(255,255,255,0.85)" />
+              </svg>
+
+              <div class="radarLabels">
+                <span>str</span><span>int</span><span>sta</span><span>cre</span><span>dis</span>
+              </div>
+            </div>
+
+            <div class="bars" id="skillsBars"></div>
+          </div>
+
+          <div class="btnrow">
+            <button class="btn ghost" id="btnAddPoint" type="button">+1 point</button>
+            <button class="btn ghost" id="btnAutoSpread" type="button">auto spread</button>
+          </div>
+
+          <div class="tiny hint">tip: clic en una barra para asignar 1 punto.</div>
+        </section>
+
+        <!-- Activity log -->
+        <section class="card frame">
+          <div class="head">
+            <div class="kicker">activity</div>
+            <div class="tiny">last actions</div>
+          </div>
+          <ul class="log" id="log"></ul>
+        </section>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main">
+        <!-- Quests -->
+        <section class="card frame">
+          <div class="head">
+            <div class="kicker">daily quests</div>
+            <div class="tiny">complete = gain xp • undo available</div>
+          </div>
+
+          <form class="form" id="questForm">
+            <input class="input" id="questTitle" placeholder="Ej: 30 min deep work" maxlength="60" />
+            <div class="row">
+              <select class="select" id="questXp">
+                <option value="10">+10 (mini)</option>
+                <option value="20" selected>+20 (daily)</option>
+                <option value="35">+35 (medium)</option>
+                <option value="50">+50 (focus)</option>
+                <option value="80">+80 (boss)</option>
+              </select>
+              <button class="btn" type="submit">add</button>
+            </div>
+          </form>
+
+          <ul class="quests" id="questList"></ul>
+        </section>
+
+        <!-- 3 modules row -->
+        <section class="triple">
+          <!-- Habits -->
+          <section class="card frame">
+            <div class="head">
+              <div class="kicker">trackers</div>
+              <div class="tiny">habits + streak</div>
+            </div>
+
+            <div class="habits" id="habitList"></div>
+
+            <div class="btnrow">
+              <button class="btn ghost" id="btnAddHabit" type="button">add habit</button>
+            </div>
+          </section>
+
+          <!-- Calendar -->
+          <section class="card frame">
+            <div class="head">
+              <div class="kicker">calendar</div>
+              <div class="calNav">
+                <button class="btn ghost" id="prevMonth" type="button">‹</button>
+                <div class="tiny" id="monthLabel">month</div>
+                <button class="btn ghost" id="nextMonth" type="button">›</button>
+              </div>
+            </div>
+
+            <div class="calendar">
+              <div class="dow">
+                <span>mo</span><span>tu</span><span>we</span><span>th</span><span>fr</span><span>sa</span><span>su</span>
+              </div>
+              <div class="gridDays" id="calDays"></div>
+            </div>
+
+            <div class="calFoot">
+              <div class="tiny">streak: <b id="streak">0</b></div>
+              <div class="tiny">click day → toggle done (+5 / -5)</div>
+            </div>
+          </section>
+
+          <!-- Inventory (visual, nicer) -->
+          <section class="card frame">
+            <div class="head">
+              <div class="kicker">inventory</div>
+              <div class="tiny">potions + loot</div>
+            </div>
+
+            <div class="inv">
+              <div class="slot"><div class="ico hp"></div><div class="tiny">hp</div></div>
+              <div class="slot"><div class="ico xp"></div><div class="tiny">xp</div></div>
+              <div class="slot"><div class="ico focus"></div><div class="tiny">focus</div></div>
+              <div class="slot"><div class="ico sleep"></div><div class="tiny">sleep</div></div>
+              <div class="slot"><div class="ico key"></div><div class="tiny">key</div></div>
+              <div class="slot"><div class="ico scroll"></div><div class="tiny">scroll</div></div>
+            </div>
+
+            <div class="tiny hint">después esto lo conectamos a recompensas reales.</div>
+          </section>
+        </section>
+      </main>
+    </div>
+  </section>
+
+  <style>
+    /* ===== baseline ===== */
+    .ui{ display:grid; gap:14px; padding-top:6px; }
+    .tiny{ font-size:12px; opacity:.78; }
+    .hint{ margin-top:8px; }
+    .kicker{
+      font-size:12px;
+      letter-spacing:.9px;
+      text-transform: uppercase;
+      opacity:.85;
+    }
+    .label{
+      font-size:11px;
+      letter-spacing:.8px;
+      text-transform: uppercase;
+      opacity:.75;
+    }
+
+    /* ===== top bar ===== */
+    .top{
+      border-radius:18px;
+      border:1px solid rgba(175,135,255,0.18);
+      background: rgba(0,0,0,0.32);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      padding: 14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items:center;
+      gap: 10px;
+      position: relative;
+      overflow:hidden;
+    }
+    .top.frame::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(700px 240px at 20% 0%, rgba(175,135,255,0.18), transparent 60%),
+        radial-gradient(520px 220px at 80% 10%, rgba(120,200,255,0.10), transparent 65%);
+      pointer-events:none;
+      opacity: .95;
+    }
+    .top > *{ position:relative; z-index:1; }
+
+    .badge{
+      width: fit-content;
+      font-size:12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(175,135,255,0.22);
+      background: rgba(90,40,160,0.18);
+      box-shadow: 0 0 18px rgba(175,135,255,0.14);
+    }
+    .top-left{ display:grid; gap:6px; }
+    .top-mid{ text-align:center; display:grid; gap:4px; }
+    .title{
+      font-size:22px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      text-shadow: 0 0 14px rgba(175,135,255,0.18);
+    }
+    .subtitle{
+      font-size:12px;
+      opacity:.8;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    .top-right{ display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+
+    /* ===== layout ===== */
+    .layout{
+      display:grid;
+      grid-template-columns: 380px 1fr;
+      gap: 14px;
+      align-items:start;
+    }
+    .left{ display:grid; gap:14px; }
+    .main{ display:grid; gap:14px; }
+
+    /* ===== card/frame ===== */
+    .card{
+      border-radius:18px;
+      border:1px solid rgba(175,135,255,0.18);
+      background: rgba(0,0,0,0.30);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      padding: 14px;
+      position: relative;
+      overflow:hidden;
+    }
+    .frame::before{
+      content:"";
+      position:absolute;
+      inset: 10px;
+      border-radius:14px;
+      border:1px solid rgba(175,135,255,0.12);
+      pointer-events:none;
+    }
+    .frame::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(600px 240px at 20% 0%, rgba(175,135,255,0.14), transparent 60%),
+        radial-gradient(420px 220px at 80% 110%, rgba(220,120,255,0.08), transparent 60%);
+      pointer-events:none;
+      opacity: .9;
+    }
+    .card > *{ position:relative; z-index:1; }
+
+    .head{ display:flex; justify-content: space-between; align-items:center; gap:10px; margin-bottom: 10px; }
+
+    .chip{
+      font-size:12px;
+      padding: 6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(175,135,255,0.18);
+      background: rgba(255,255,255,0.06);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    /* ===== buttons/inputs ===== */
+    .btn{
+      border-radius:12px;
+      border:1px solid rgba(175,135,255,0.20);
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.92);
+      padding: 10px 12px;
+      cursor:pointer;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      font-size: 12px;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(175,135,255,0.10);
+      border-color: rgba(175,135,255,0.30);
+    }
+    .btn.ghost{ background: rgba(0,0,0,0.18); }
+    .btn.danger{
+      border-color: rgba(255,120,160,0.25);
+      background: rgba(120,20,40,0.20);
+    }
+    .btn.danger:hover{ background: rgba(160,30,60,0.26); border-color: rgba(255,120,160,0.35); }
+
+    .input, .select{
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(175,135,255,0.16);
+      background: rgba(0,0,0,0.22);
+      color: rgba(255,255,255,0.92);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    /* ===== character ===== */
+    .char{ display:grid; grid-template-columns: 92px 1fr; gap:12px; align-items:center; }
+    .avatar{
+      width:92px; height:92px; border-radius:999px;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.20), transparent 35%),
+        radial-gradient(circle at 50% 60%, rgba(175,135,255,0.22), rgba(0,0,0,0.55) 70%),
+        linear-gradient(135deg, rgba(175,135,255,0.18), rgba(40,10,80,0.10));
+      border: 1px solid rgba(175,135,255,0.25);
+      box-shadow: 0 0 22px rgba(175,135,255,0.16), inset 0 0 16px rgba(0,0,0,0.45);
+    }
+    .name{
+      font-size:18px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .stats{ margin-top: 10px; display:grid; gap:10px; }
+    .statrow{ display:flex; justify-content: space-between; align-items: baseline; }
+    .big{ font-size: 30px; font-weight: 900; letter-spacing: .8px; }
+    .val{ font-size: 16px; font-weight: 800; }
+
+    .xpbox{ display:grid; gap:8px; }
+    .xpmeta{ display:flex; justify-content: space-between; gap:10px; }
+    .bar{
+      height:12px;
+      border-radius:999px;
+      border:1px solid rgba(175,135,255,0.18);
+      background: rgba(255,255,255,0.08);
+      overflow:hidden;
+    }
+    .fill{
+      height:100%;
+      background: linear-gradient(90deg, rgba(175,135,255,0.14), rgba(175,135,255,0.55), rgba(120,200,255,0.28));
+      box-shadow: 0 0 18px rgba(175,135,255,0.20);
+      transition: width 200ms ease;
+    }
+
+    .quickxp{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-top: 4px; }
+
+    .adjust{ margin-top: 4px; display:grid; gap:8px; }
+    .adjustRow{ display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center; }
+
+    .warning{
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,120,160,0.22);
+      background: rgba(120,20,40,0.16);
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items:center;
+    }
+    .warnTitle{
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,170,200,0.95);
+      font-weight: 900;
+    }
+
+    /* ===== skills ===== */
+    .skillsWrap{ display:grid; grid-template-columns: 170px 1fr; gap:12px; align-items:start; }
+    .radar{ border-radius: 16px; border: 1px solid rgba(175,135,255,0.14); background: rgba(0,0,0,0.18); padding: 10px; }
+    .radarLabels{
+      margin-top: 6px;
+      display:flex;
+      justify-content: space-between;
+      font-size: 11px;
+      opacity: .75;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    .bars{ display:grid; gap:10px; }
+    .skill{
+      border-radius: 14px;
+      border: 1px solid rgba(175,135,255,0.14);
+      background: rgba(0,0,0,0.18);
+      padding: 10px;
+      display:grid;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .skillTop{ display:flex; justify-content: space-between; align-items:center; }
+    .skillName{ font-size: 12px; text-transform: uppercase; letter-spacing: .8px; opacity: .88; }
+    .skillVal{ font-size: 12px; opacity: .85; font-weight: 800; }
+    .sbar{ height:10px; border-radius:999px; border: 1px solid rgba(175,135,255,0.14); background: rgba(255,255,255,0.08); overflow:hidden; }
+    .sfill{ height:100%; background: linear-gradient(90deg, rgba(175,135,255,0.18), rgba(175,135,255,0.55)); }
+
+    .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 10px; }
+
+    /* ===== log ===== */
+    .log{ list-style:none; padding:0; margin:0; display:grid; gap:8px; }
+    .log li{
+      border-radius: 14px;
+      border: 1px solid rgba(175,135,255,0.12);
+      background: rgba(0,0,0,0.18);
+      padding: 10px;
+      font-size: 12px;
+      opacity: .85;
+      display:flex;
+      justify-content: space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .log .tag{
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      opacity: .75;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(175,135,255,0.14);
+      background: rgba(255,255,255,0.06);
+      white-space: nowrap;
+    }
+
+    /* ===== quests ===== */
+    .form{ display:grid; gap:10px; }
+    .row{ display:grid; grid-template-columns: 1fr auto; gap:10px; }
+    .quests{ list-style:none; padding:0; margin: 12px 0 0; display:grid; gap:10px; }
+    .quest{
+      border-radius: 14px;
+      border: 1px solid rgba(175,135,255,0.14);
+      background: rgba(0,0,0,0.18);
+      padding: 12px;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items:center;
+    }
+    .qTitle{ font-size: 14px; opacity: .95; }
+    .qRight{ display:flex; gap:10px; align-items:center; }
+    .pill{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(175,135,255,0.16);
+      background: rgba(255,255,255,0.06);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      white-space: nowrap;
+    }
+
+    /* ===== triple ===== */
+    .triple{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:14px; }
+
+    /* ===== habits ===== */
+    .habits{ display:grid; gap:10px; }
+    .habit{
+      border-radius: 14px;
+      border: 1px solid rgba(175,135,255,0.14);
+      background: rgba(0,0,0,0.18);
+      padding: 12px;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items:center;
+    }
+    .hName{ font-size: 12px; text-transform: uppercase; letter-spacing: .8px; opacity: .9; font-weight: 800; }
+    .hSub{ font-size: 12px; opacity: .75; margin-top: 3px; }
+    .hBtns{ display:flex; gap:10px; align-items:center; }
+    .done{
+      border-radius: 999px;
+      border: 1px solid rgba(175,135,255,0.20);
+      background: rgba(175,135,255,0.10);
+      color: rgba(255,255,255,0.92);
+      padding: 8px 10px;
+      cursor:pointer;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+    .done:hover{ transform: translateY(-1px); background: rgba(175,135,255,0.14); }
+    .mini{ font-size: 12px; opacity: .85; }
+
+    /* ===== calendar square ===== */
+    .calNav{ display:flex; gap:8px; align-items:center; }
+    .calendar{ display:grid; gap:10px; }
+    .dow{ display:grid; grid-template-columns: repeat(7, 1fr); gap:8px; }
+    .dow span{
+      text-align:center;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .9px;
+      opacity: .65;
+    }
+    .gridDays{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:8px;
+    }
+    .day{
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      border: 1px solid rgba(175,135,255,0.12);
+      background: rgba(0,0,0,0.18);
+      color: rgba(255,255,255,0.90);
+      cursor:pointer;
+      font-size: 12px;
+      display:grid;
+      place-items:center;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+      position: relative;
+      overflow:hidden;
+    }
+    .day:hover{
+      transform: translateY(-1px);
+      border-color: rgba(175,135,255,0.26);
+      background: rgba(175,135,255,0.08);
+    }
+    .day.off{
+      opacity: .25;
+      cursor: default;
+    }
+    .day.off:hover{ transform:none; background: rgba(0,0,0,0.18); border-color: rgba(175,135,255,0.12); }
+    .day.done{
+      background: rgba(175,135,255,0.18);
+      border-color: rgba(175,135,255,0.32);
+      box-shadow: 0 0 18px rgba(175,135,255,0.14);
+    }
+    .day.done::after{
+      content:"";
+      position:absolute;
+      inset:-20px;
+      background: radial-gradient(circle at 50% 50%, rgba(175,135,255,0.18), transparent 60%);
+      pointer-events:none;
+    }
+    .calFoot{
+      margin-top: 10px;
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+
+    /* ===== inventory ===== */
+    .inv{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+    .slot{
+      border-radius: 14px;
+      border: 1px solid rgba(175,135,255,0.12);
+      background: rgba(0,0,0,0.18);
+      padding: 10px;
+      display:grid;
+      justify-items:center;
+      gap: 8px;
+    }
+    .ico{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(175,135,255,0.18);
+      background: rgba(255,255,255,0.06);
+      position: relative;
+      box-shadow: 0 0 18px rgba(175,135,255,0.10);
+      overflow:hidden;
+    }
+    .ico::after{
+      content:"";
+      position:absolute;
+      inset: 10px;
+      border-radius: 12px;
+      opacity: .95;
+    }
+    .ico.hp::after{ background: rgba(255,120,160,0.35); }
+    .ico.xp::after{ background: rgba(175,135,255,0.45); }
+    .ico.focus::after{ background: rgba(120,200,255,0.35); }
+    .ico.sleep::after{ background: rgba(150,255,200,0.30); }
+    .ico.key::after{ background: rgba(255,230,140,0.28); }
+    .ico.scroll::after{ background: rgba(210,210,255,0.24); }
+
+    @media (max-width: 1150px){
+      .layout{ grid-template-columns: 1fr; }
+      .triple{ grid-template-columns: 1fr; }
+      .top{ grid-template-columns: 1fr; text-align:left; }
+      .top-mid{ text-align:left; }
+      .top-right{ justify-content:flex-start; }
+      .skillsWrap{ grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <script is:inline>
+    const KEY = "jai_rpg_system_v3";
+
+    // ===== XP/LEVEL =====
+    function xpToNext(level){ return 120 + (level - 1) * 55; }
+    function compute(totalXp){
+      let level = 1;
+      let rem = totalXp;
+      while(rem >= xpToNext(level)){
+        rem -= xpToNext(level);
+        level += 1;
+      }
+      return { level, xpInLevel: rem, xpNeed: xpToNext(level) };
+    }
+    function rankFromLevel(lvl){
+      if(lvl >= 30) return "s";
+      if(lvl >= 22) return "a";
+      if(lvl >= 15) return "b";
+      if(lvl >= 9) return "c";
+      if(lvl >= 4) return "d";
+      return "e";
+    }
+
+    // ===== STATE =====
+    const defaultState = {
+      xp: 0,
+      points: 0,
+      skills: { str: 5, int: 5, sta: 5, cre: 5, dis: 5 },
+      quests: [
+        { id: "q1", title: "30 min deep work", xp: 20 },
+        { id: "q2", title: "8 hours sleep", xp: 20 },
+        { id: "q3", title: "10 min movement", xp: 10 },
+      ],
+      habits: [
+        { id: "h1", name: "water", xp: 10, streak: 0, lastDone: null },
+        { id: "h2", name: "study", xp: 20, streak: 0, lastDone: null },
+        { id: "h3", name: "walk", xp: 10, streak: 0, lastDone: null },
+      ],
+      calendar: {}, // YYYY-MM-DD => true
+      history: []   // stack of actions for undo
+    };
+
+    function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(KEY);
+        if(!raw) return clone(defaultState);
+        const s = JSON.parse(raw);
+        return {
+          ...clone(defaultState),
+          ...s,
+          skills: { ...clone(defaultState.skills), ...(s?.skills || {}) },
+          quests: Array.isArray(s?.quests) ? s.quests : clone(defaultState.quests),
+          habits: Array.isArray(s?.habits) ? s.habits : clone(defaultState.habits),
+          calendar: (s?.calendar && typeof s.calendar === "object") ? s.calendar : {},
+          history: Array.isArray(s?.history) ? s.history : []
+        };
+      }catch{
+        return clone(defaultState);
+      }
+    }
+    function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+    let state = load();
+
+    // ===== DOM =====
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      rankChip: $("rankChip"),
+      lvl: $("lvl"),
+      xp: $("xp"),
+      xpInLevel: $("xpInLevel"),
+      xpNeed: $("xpNeed"),
+      xpPct: $("xpPct"),
+      fill: $("fill"),
+
+      xpAdjust: $("xpAdjust"),
+      btnAddXp: $("btnAddXp"),
+      btnSubXp: $("btnSubXp"),
+      btnMini: $("btnMini"),
+      btnDaily: $("btnDaily"),
+      btnFocus: $("btnFocus"),
+
+      spInfo: $("spInfo"),
+      btnAddPoint: $("btnAddPoint"),
+      btnAutoSpread: $("btnAutoSpread"),
+      skillsBars: $("skillsBars"),
+      radarPoly: $("radarPoly"),
+      radarDot: $("radarDot"),
+
+      questForm: $("questForm"),
+      questTitle: $("questTitle"),
+      questXp: $("questXp"),
+      questList: $("questList"),
+
+      habitList: $("habitList"),
+      btnAddHabit: $("btnAddHabit"),
+
+      prevMonth: $("prevMonth"),
+      nextMonth: $("nextMonth"),
+      monthLabel: $("monthLabel"),
+      calDays: $("calDays"),
+      streak: $("streak"),
+
+      btnUndo: $("btnUndo"),
+      btnExport: $("btnExport"),
+      btnReset: $("btnReset"),
+      log: $("log"),
+    };
+
+    // ===== HISTORY / UNDO =====
+    function pushHistory(action){
+      state.history.unshift(action);
+      state.history = state.history.slice(0, 12);
+    }
+
+    function undo(){
+      const a = state.history.shift();
+      if(!a) return;
+
+      // restore snapshot of affected state
+      if(a.type === "xp"){
+        state.xp = a.prevXp;
+        state.points = a.prevPoints;
+      }
+      if(a.type === "quest-complete"){
+        state.xp = a.prevXp;
+        state.points = a.prevPoints;
+        state.quests = a.prevQuests;
+      }
+      if(a.type === "habit-done"){
+        state.xp = a.prevXp;
+        state.points = a.prevPoints;
+        state.habits = a.prevHabits;
+      }
+      if(a.type === "calendar-toggle"){
+        state.xp = a.prevXp;
+        state.points = a.prevPoints;
+        state.calendar = a.prevCalendar;
+      }
+      if(a.type === "skill-assign"){
+        state.points = a.prevPoints;
+        state.skills = a.prevSkills;
+      }
+
+      save();
+      render();
+    }
+
+    // ===== HELPERS =====
+    function fmtDateKey(d){
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${day}`;
+    }
+    function isYesterday(a, b){
+      const da = new Date(a);
+      const db = new Date(b);
+      const diff = (db - da) / 86400000;
+      return diff >= 0.9 && diff <= 1.1;
+    }
+
+    function addXp(amount, reason="xp"){
+      const a = Number(amount) || 0;
+      if(a === 0) return;
+
+      const prevXp = state.xp;
+      const prevPoints = state.points;
+
+      // level ups => +2 points per new level
+      const before = compute(state.xp).level;
+      state.xp += a;
+      if(state.xp < 0) state.xp = 0;
+      const after = compute(state.xp).level;
+      if(after > before){
+        state.points += (after - before) * 2;
+      }
+
+      pushHistory({ type:"xp", reason, amount:a, prevXp, prevPoints, at: Date.now() });
+      save();
+      render();
+    }
+
+    // ===== RENDER =====
+    const SKILLS = [
+      { key:"str", label:"strength" },
+      { key:"int", label:"intelligence" },
+      { key:"sta", label:"stamina" },
+      { key:"cre", label:"creativity" },
+      { key:"dis", label:"discipline" },
+    ];
+
+    function renderHeader(){
+      const { level, xpInLevel, xpNeed } = compute(state.xp);
+      const pct = Math.max(0, Math.min(100, Math.round((xpInLevel / xpNeed) * 100)));
+
+      els.lvl.textContent = String(level);
+      els.xp.textContent = String(state.xp);
+      els.xpInLevel.textContent = String(xpInLevel);
+      els.xpNeed.textContent = String(xpNeed);
+      els.xpPct.textContent = pct + "%";
+      els.fill.style.width = pct + "%";
+      els.rankChip.textContent = `rank: ${rankFromLevel(level)}`;
+    }
+
+    function renderSkills(){
+      els.spInfo.textContent = `points: ${state.points}`;
+
+      // bars
+      els.skillsBars.innerHTML = "";
+      SKILLS.forEach((s) => {
+        const val = Number(state.skills[s.key] || 0);
+        const pct = Math.max(2, Math.min(100, Math.round((val / 50) * 100)));
+
+        const wrap = document.createElement("div");
+        wrap.className = "skill";
+        wrap.title = "click to assign 1 point";
+
+        const top = document.createElement("div");
+        top.className = "skillTop";
+
+        const name = document.createElement("div");
+        name.className = "skillName";
+        name.textContent = s.label;
+
+        const v = document.createElement("div");
+        v.className = "skillVal";
+        v.textContent = String(val);
+
+        top.appendChild(name);
+        top.appendChild(v);
+
+        const bar = document.createElement("div");
+        bar.className = "sbar";
+
+        const fill = document.createElement("div");
+        fill.className = "sfill";
+        fill.style.width = pct + "%";
+
+        bar.appendChild(fill);
+
+        wrap.appendChild(top);
+        wrap.appendChild(bar);
+
+        wrap.addEventListener("click", () => {
+          if(state.points <= 0) return;
+          const prevPoints = state.points;
+          const prevSkills = clone(state.skills);
+
+          state.points -= 1;
+          state.skills[s.key] = (state.skills[s.key] || 0) + 1;
+
+          pushHistory({ type:"skill-assign", key:s.key, prevPoints, prevSkills, at: Date.now() });
+          save();
+          render();
+        });
+
+        els.skillsBars.appendChild(wrap);
+      });
+
+      // radar (5 axes)
+      // order: str (top), int (top-right), sta (bottom-right), cre (bottom-left), dis (top-left)
+      const v = state.skills;
+      const values = [
+        Number(v.str||0),
+        Number(v.int||0),
+        Number(v.sta||0),
+        Number(v.cre||0),
+        Number(v.dis||0),
+      ].map(x => Math.max(0, Math.min(50, x)));
+
+      const center = { x:110, y:110 };
+      const maxR = 88;
+
+      function point(angleDeg, value){
+        const r = (value/50) * maxR;
+        const a = (Math.PI/180) * angleDeg;
+        return { x: center.x + r * Math.cos(a), y: center.y + r * Math.sin(a) };
+      }
+
+      // angles (deg): -90, -18, 54, 162, -162
+      const pts = [
+        point(-90, values[0]),
+        point(-18, values[1]),
+        point(54,  values[2]),
+        point(162, values[3]),
+        point(-162,values[4]),
+      ];
+
+      els.radarPoly.setAttribute("points", pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" "));
+      els.radarDot.setAttribute("cx", String(center.x));
+      els.radarDot.setAttribute("cy", String(center.y));
+    }
+
+    function renderQuests(){
+      els.questList.innerHTML = "";
+      state.quests.forEach((q) => {
+        const li = document.createElement("li");
+        li.className = "quest";
+
+        const left = document.createElement("div");
+        left.className = "qTitle";
+        left.textContent = q.title;
+
+        const right = document.createElement("div");
+        right.className = "qRight";
+
+        const pill = document.createElement("span");
+        pill.className = "pill";
+        pill.textContent = `+${q.xp} xp`;
+
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.type = "button";
+        btn.textContent = "complete";
+
+        btn.addEventListener("click", () => {
+          const prevXp = state.xp;
+          const prevPoints = state.points;
+          const prevQuests = clone(state.quests);
+
+          addXp(q.xp, "quest");
+          // addXp already pushed history for xp; we want a single undo for the whole completion
+          // so we overwrite with a snapshot action:
+          state.history.shift(); // remove last "xp" action
+          state.quests = state.quests.filter(x => x.id !== q.id);
+
+          pushHistory({ type:"quest-complete", prevXp, prevPoints, prevQuests, at: Date.now(), title:q.title, amount:q.xp });
+          save();
+          render();
+        });
+
+        right.appendChild(pill);
+        right.appendChild(btn);
+        li.appendChild(left);
+        li.appendChild(right);
+
+        els.questList.appendChild(li);
+      });
+    }
+
+    function renderHabits(){
+      els.habitList.innerHTML = "";
+      state.habits.forEach((h) => {
+        const row = document.createElement("div");
+        row.className = "habit";
+
+        const left = document.createElement("div");
+        const hn = document.createElement("div");
+        hn.className = "hName";
+        hn.textContent = h.name;
+
+        const hs = document.createElement("div");
+        hs.className = "hSub";
+        hs.textContent = `streak: ${h.streak} • +${h.xp} xp`;
+
+        left.appendChild(hn);
+        left.appendChild(hs);
+
+        const right = document.createElement("div");
+        right.className = "hBtns";
+
+        const xp = document.createElement("span");
+        xp.className = "mini";
+        xp.textContent = `+${h.xp}`;
+
+        const done = document.createElement("button");
+        done.className = "done";
+        done.type = "button";
+        done.textContent = "done";
+
+        done.addEventListener("click", () => {
+          const prevXp = state.xp;
+          const prevPoints = state.points;
+          const prevHabits = clone(state.habits);
+
+          const todayKey = fmtDateKey(new Date());
+          const idx = state.habits.findIndex(x => x.id === h.id);
+          if(idx === -1) return;
+
+          // if already done today, ignore (use undo if mistake)
+          if(state.habits[idx].lastDone === todayKey) return;
+
+          // streak
+          if(state.habits[idx].lastDone){
+            if(isYesterday(state.habits[idx].lastDone, todayKey)) state.habits[idx].streak += 1;
+            else state.habits[idx].streak = 1;
+          } else {
+            state.habits[idx].streak = 1;
+          }
+          state.habits[idx].lastDone = todayKey;
+
+          // bonus every 7
+          const bonus = (state.habits[idx].streak % 7 === 0) ? 25 : 0;
+          const total = (Number(state.habits[idx].xp)||0) + bonus;
+
+          addXp(total, "habit");
+          state.history.shift(); // remove last "xp" action (we replace with snapshot)
+
+          pushHistory({ type:"habit-done", prevXp, prevPoints, prevHabits, at: Date.now(), name:h.name, amount: total });
+          save();
+          render();
+        });
+
+        right.appendChild(xp);
+        right.appendChild(done);
+
+        row.appendChild(left);
+        row.appendChild(right);
+        els.habitList.appendChild(row);
+      });
+    }
+
+    // ===== CALENDAR =====
+    let calendarBase = new Date();
+
+    function getMonthData(base){
+      const year = base.getFullYear();
+      const month = base.getMonth();
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      const mondayIndex = (first.getDay() + 6) % 7;
+
+      const cells = [];
+      for(let i=0;i<mondayIndex;i++) cells.push({ off:true, n:"" });
+
+      for(let d=1; d<=last.getDate(); d++){
+        const date = new Date(year, month, d);
+        const key = fmtDateKey(date);
+        cells.push({ off:false, n:d, key });
+      }
+
+      while(cells.length < 42) cells.push({ off:true, n:"" });
+      return { year, month, cells };
+    }
+
+    function calcStreakFromCalendar(){
+      let streak = 0;
+      const today = new Date();
+      for(let i=0;i<365;i++){
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const key = fmtDateKey(d);
+        if(state.calendar[key]) streak += 1;
+        else break;
+      }
+      return streak;
+    }
+
+    function renderCalendar(){
+      const { year, month, cells } = getMonthData(calendarBase);
+      const monthName = calendarBase.toLocaleString("es-AR", { month:"long" });
+      els.monthLabel.textContent = `${monthName} ${year}`;
+
+      els.calDays.innerHTML = "";
+      cells.forEach((c) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "day" + (c.off ? " off" : "") + (!c.off && state.calendar[c.key] ? " done" : "");
+        b.textContent = c.n;
+        if(c.off){
+          b.disabled = true;
+        } else {
+          b.addEventListener("click", () => {
+            const prevXp = state.xp;
+            const prevPoints = state.points;
+            const prevCalendar = clone(state.calendar);
+
+            const was = !!state.calendar[c.key];
+            if(was) delete state.calendar[c.key];
+            else state.calendar[c.key] = true;
+
+            // add/sub xp with history snapshot
+            addXp(was ? -5 : 5, "calendar");
+            state.history.shift(); // remove last "xp" action
+
+            pushHistory({ type:"calendar-toggle", prevXp, prevPoints, prevCalendar, at: Date.now(), key: c.key, amount: was ? -5 : 5 });
+            save();
+            render();
+          });
+        }
+        els.calDays.appendChild(b);
+      });
+
+      els.streak.textContent = String(calcStreakFromCalendar());
+    }
+
+    function renderLog(){
+      els.log.innerHTML = "";
+      const items = state.history.slice(0, 6);
+      if(items.length === 0){
+        const li = document.createElement("li");
+        li.textContent = "no actions yet";
+        els.log.appendChild(li);
+        return;
+      }
+      items.forEach((a) => {
+        const li = document.createElement("li");
+
+        const left = document.createElement("span");
+        let msg = "action";
+        if(a.type === "xp") msg = `${a.reason}: ${a.amount > 0 ? "+" : ""}${a.amount} xp`;
+        if(a.type === "quest-complete") msg = `quest: +${a.amount} xp`;
+        if(a.type === "habit-done") msg = `habit: +${a.amount} xp`;
+        if(a.type === "calendar-toggle") msg = `calendar: ${a.amount > 0 ? "+" : ""}${a.amount} xp`;
+        if(a.type === "skill-assign") msg = `skill: +1`;
+
+        left.textContent = msg;
+
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = a.type.replace("-", " ");
+
+        li.appendChild(left);
+        li.appendChild(tag);
+        els.log.appendChild(li);
+      });
+    }
+
+    function render(){
+      renderHeader();
+      renderSkills();
+      renderQuests();
+      renderHabits();
+      renderCalendar();
+      renderLog();
+      els.btnUndo.disabled = state.history.length === 0;
+    }
+
+    // ===== EVENTS =====
+    els.btnMini.addEventListener("click", () => addXp(10, "quick"));
+    els.btnDaily.addEventListener("click", () => addXp(20, "quick"));
+    els.btnFocus.addEventListener("click", () => addXp(50, "quick"));
+
+    els.btnAddXp.addEventListener("click", () => {
+      const v = Math.max(1, Number(els.xpAdjust.value) || 10);
+      addXp(v, "manual");
+    });
+    els.btnSubXp.addEventListener("click", () => {
+      const v = Math.max(1, Number(els.xpAdjust.value) || 10);
+      addXp(-v, "manual");
+    });
+
+    els.questForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const title = (els.questTitle.value || "").trim();
+      const xp = Number(els.questXp.value) || 0;
+      if(!title) return;
+      const id = (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+      state.quests.unshift({ id, title, xp });
+      els.questTitle.value = "";
+      save();
+      render();
+    });
+
+    els.btnAddHabit.addEventListener("click", () => {
+      const name = prompt("Nombre del habit? (ej: gym / lectura / agua)");
+      if(!name) return;
+      const xpRaw = prompt("XP por habit? (10 / 20 / 35)", "10");
+      const xp = Math.max(1, Number(xpRaw) || 10);
+
+      const id = (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+      state.habits.unshift({ id, name: name.trim().toLowerCase(), xp, streak: 0, lastDone: null });
+      save();
+      render();
+    });
+
+    els.btnAddPoint.addEventListener("click", () => {
+      state.points += 1;
+      save();
+      render();
+    });
+
+    els.btnAutoSpread.addEventListener("click", () => {
+      while(state.points > 0){
+        const entries = Object.entries(state.skills);
+        entries.sort((a,b) => (a[1]||0) - (b[1]||0));
+        const k = entries[0][0];
+        state.skills[k] = (state.skills[k] || 0) + 1;
+        state.points -= 1;
+      }
+      save();
+      render();
+    });
+
+    els.prevMonth.addEventListener("click", () => {
+      calendarBase = new Date(calendarBase.getFullYear(), calendarBase.getMonth() - 1, 1);
+      renderCalendar();
+    });
+    els.nextMonth.addEventListener("click", () => {
+      calendarBase = new Date(calendarBase.getFullYear(), calendarBase.getMonth() + 1, 1);
+      renderCalendar();
+    });
+
+    els.btnUndo.addEventListener("click", undo);
+
+    els.btnExport.addEventListener("click", async () => {
+      const data = JSON.stringify(state, null, 2);
+      try{
+        await navigator.clipboard.writeText(data);
+        alert("Copiado al portapapeles ✅");
+      }catch{
+        console.log(data);
+        alert("No pude copiar. Te lo dejé en consola.");
+      }
+    });
+
+    els.btnReset.addEventListener("click", () => {
+      if(!confirm("Resetear TODO el sistema (xp/quests/habits/calendar/skills)?")) return;
+      state = clone(defaultState);
+      save();
+      render();
+    });
+
+    render();
+  </script>
+</Layout>

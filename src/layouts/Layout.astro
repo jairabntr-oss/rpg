@@ -1,23 +1,192 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+// src/layouts/Layout.astro
+import { siteConfig } from "../theme/siteConfig";
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+const props = Astro.props ?? {};
+const pageTitle = props.title ?? siteConfig.title;
+const description = props.description ?? siteConfig.tagline;
+
+const navItems = Array.isArray(siteConfig.nav) ? siteConfig.nav : [];
+const bg = siteConfig.images?.background ?? "/theme/bg.jpg";
+const headerSrc = siteConfig.images?.header ?? "/theme/header.png";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+
+    <!-- ✅ CSS INLINE (SIEMPRE APLICA) -->
+    <style>
+      :root{
+        --max-w: 980px;
+        --pad: 18px;
+
+        /* Header como “antes” (chico y controlado) */
+        --header-max-w: 420px;
+        --header-max-h: 160px;
+
+        /* Íconos grandes, proporcionales */
+        --icon-box: 170px;
+        --icon-padding: 8px;
+        --radius: 18px;
+      }
+
+      *{ box-sizing: border-box; }
+      html, body{ height: 100%; }
+
+      body{
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        color: rgba(255,255,255,0.92);
+
+        /* ✅ Fondo SIEMPRE visible, aunque falle la imagen */
+        background-color: #050505;
+        background-image: var(--bg-image);
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      .overlay{
+        min-height: 100vh;
+        background: rgba(0,0,0,0.35);
+        backdrop-filter: blur(1px);
+      }
+
+      .wrap{
+        width: 100%;
+        max-width: var(--max-w);
+        margin: 0 auto;
+        padding: 18px var(--pad) 40px;
+      }
+
+      header{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .header-img{
+        width: min(var(--header-max-w), 92vw);
+        max-height: var(--header-max-h);
+        height: auto;
+        display: block;
+        object-fit: contain;
+      }
+
+      nav{
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 6px;
+        align-items: start;
+      }
+
+      .nav-item{
+        display: grid;
+        place-items: center;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .icon-box{
+        width: var(--icon-box);
+        height: var(--icon-box);
+        border-radius: var(--radius);
+        display: grid;
+        place-items: center;
+        background: rgba(0,0,0,0.28);
+        border: 1px solid rgba(255,255,255,0.10);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+      }
+
+      .nav-item:hover .icon-box{
+        transform: translateY(-2px);
+        background: rgba(0,0,0,0.34);
+        border-color: rgba(255,255,255,0.16);
+      }
+
+      .icon{
+        width: 100%;
+        height: 100%;
+        padding: var(--icon-padding);
+        object-fit: contain;
+        display: block;
+      }
+
+      .label{
+        margin-top: 10px;
+        font-size: 14px;
+        letter-spacing: 0.3px;
+        opacity: 0.92;
+        text-align: center;
+        text-transform: lowercase;
+      }
+
+      main{ margin-top: 22px; }
+      .content{ padding: 12px 6px; }
+      h1,h2,h3,p{ margin: 0 0 10px; }
+
+      @media (max-width: 700px){
+        :root{
+          --header-max-w: 380px;
+          --header-max-h: 150px;
+          --icon-box: 150px;
+        }
+      }
+
+      @media (max-width: 520px){
+        :root{
+          --header-max-w: 340px;
+          --header-max-h: 140px;
+          --icon-box: 132px;
+          --icon-padding: 7px;
+        }
+        nav{ gap: 12px; }
+        .label{ font-size: 13px; }
+      }
+    </style>
+  </head>
+
+  <!-- ✅ Truco PRO: metemos la URL en una CSS variable, PostCSS no la “rompe” -->
+  <body style={`--bg-image: url("${bg}");`}>
+    <div class="overlay">
+      <div class="wrap">
+        <header>
+          <img class="header-img" src={headerSrc} alt={siteConfig.title} loading="eager" />
+
+          <nav aria-label="Navegación principal">
+            {navItems.map((item) => (
+              <a
+                class="nav-item"
+                href={item.href}
+                title={item.label}
+                aria-label={item.label}
+                style={`grid-column: ${item.order};`}
+              >
+                <div class="icon-box">
+                  <img class="icon" src={item.icon} alt={item.label} loading="lazy" />
+                </div>
+                <div class="label">{item.label}</div>
+              </a>
+            ))}
+          </nav>
+        </header>
+
+        <main>
+          <div class="content">
+            <slot />
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

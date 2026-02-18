@@ -1,11 +1,266 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Home">
+  <section class="dash">
+    <div class="top">
+      <div class="focus card">
+        <div class="kicker">daily focus</div>
+        <h1>Hoy leveleás con 1 cosa</h1>
+        <p class="muted">Elegí una misión principal y una secundaria. Nada más.</p>
+
+        <div class="chips">
+          <span class="chip">main quest</span>
+          <span class="chip">side quest</span>
+          <span class="chip">rest / reset</span>
+        </div>
+      </div>
+
+      <div class="quick card">
+        <div class="kicker">quick add</div>
+        <h2>Agregar misión</h2>
+
+        <form class="form" onsubmit="return false;">
+          <input class="input" placeholder="Ej: 20 min de estudio / caminar 10 min" />
+          <div class="row">
+            <select class="select">
+              <option>main quest</option>
+              <option>side quest</option>
+              <option>habit</option>
+            </select>
+            <button class="btn">guardar</button>
+          </div>
+          <p class="hint">Esto por ahora es visual. Después lo conectamos al backend.</p>
+        </form>
+      </div>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <div class="kicker">quests</div>
+        <h2>Misiones de hoy</h2>
+
+        <ul class="list">
+          <li><span class="dot"></span> 1 tarea chica (5–15 min)</li>
+          <li><span class="dot"></span> 1 bloque de foco (25 min)</li>
+          <li><span class="dot"></span> 1 cosa para tu energía (agua / comida / sol)</li>
+        </ul>
+
+        <div class="actions">
+          <button class="btn ghost">editar</button>
+          <button class="btn">marcar completado</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="kicker">stats</div>
+        <h2>Estado</h2>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="label">energía</div>
+            <div class="bar"><div class="fill" style="width: 62%"></div></div>
+            <div class="value">62%</div>
+          </div>
+
+          <div class="stat">
+            <div class="label">enfoque</div>
+            <div class="bar"><div class="fill" style="width: 45%"></div></div>
+            <div class="value">45%</div>
+          </div>
+
+          <div class="stat">
+            <div class="label">ánimo</div>
+            <div class="bar"><div class="fill" style="width: 70%"></div></div>
+            <div class="value">70%</div>
+          </div>
+        </div>
+
+        <p class="hint">Después esto lo hacemos editable y se guarda en DB.</p>
+      </article>
+
+      <article class="card">
+        <div class="kicker">notes</div>
+        <h2>Notas rápidas</h2>
+
+        <textarea class="textarea" placeholder="Escribí lo que tengas en la cabeza..."></textarea>
+
+        <div class="actions">
+          <button class="btn ghost">limpiar</button>
+          <button class="btn">guardar</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <style>
+    .dash{
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding-top: 6px;
+    }
+
+    .top{
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .grid{
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card{
+      background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      border-radius: 18px;
+      padding: 16px 16px;
+    }
+
+    .kicker{
+      font-size: 12px;
+      letter-spacing: 0.6px;
+      text-transform: lowercase;
+      opacity: 0.85;
+      margin-bottom: 6px;
+    }
+
+    h1{
+      font-size: 28px;
+      margin: 0 0 8px;
+      line-height: 1.1;
+    }
+
+    h2{
+      font-size: 18px;
+      margin: 0 0 10px;
+      line-height: 1.2;
+    }
+
+    .muted{ opacity: 0.85; margin: 0; }
+
+    .chips{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip{
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .form{ margin-top: 10px; display: grid; gap: 10px; }
+    .row{ display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+
+    .input, .select, .textarea{
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.25);
+      color: rgba(255,255,255,0.92);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .textarea{
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .btn{
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.92);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.20);
+    }
+
+    .btn.ghost{
+      background: rgba(0,0,0,0.18);
+    }
+
+    .hint{
+      margin: 6px 0 0;
+      font-size: 12px;
+      opacity: 0.75;
+    }
+
+    .list{
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 10px;
+      background: rgba(255,255,255,0.35);
+    }
+
+    .actions{
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .stats{
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .stat{
+      display: grid;
+      grid-template-columns: 90px 1fr 48px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stat .label{ font-size: 12px; opacity: 0.85; text-transform: lowercase; }
+    .stat .value{ font-size: 12px; opacity: 0.85; text-align: right; }
+
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .fill{
+      height: 100%;
+      background: rgba(255,255,255,0.35);
+      border-radius: 999px;
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .top{ grid-template-columns: 1fr; }
+      h1{ font-size: 24px; }
+    }
+  </style>
 </Layout>
