@@ -9,8 +9,8 @@ const {
   description = "Tu universo personal gamificado",
 } = Astro.props as Props;
 
+const BASE = import.meta.env.BASE_URL || "/";
 const currentPath = Astro.url.pathname;
-const BASE = import.meta.env.BASE_URL;
 
 const withBase = (path: string) => {
   const clean = path.replace(/^\//, "");
@@ -20,14 +20,15 @@ const withBase = (path: string) => {
 const normalize = (p: string) => p.replace(/\/+$/, "") || "/";
 const isActive = (href: string) => normalize(currentPath) === normalize(withBase(href));
 
+/**
+ * ✅ HOME EN EL MEDIO (como me pediste)
+ * ✅ assets en /public/... (Astro los sirve tal cual)
+ */
 const navItems = [
-  { label: "home", href: "/", icon: "theme/icons/home.gif" },
-  { label: "blog", href: "/blog/", icon: "theme/icons/blog.gif" },
-  { label: "rpg", href: "/rpg/", icon: "theme/icons/rpg.gif" },
+  { label: "blog", href: "/blog/", icon: "/theme/icons/blog.gif" },
+  { label: "home", href: "/", icon: "/theme/icons/home.gif" },
+  { label: "rpg", href: "/rpg/", icon: "/theme/icons/rpg.gif" },
 ];
-
-const BG = withBase("bg.jpg");
-const HEADER = withBase("header.png");
 ---
 
 <!doctype html>
@@ -40,54 +41,29 @@ const HEADER = withBase("header.png");
 
     <style>
       :root{
-        --text: rgba(255,255,255,.92);
-        --muted: rgba(255,255,255,.72);
+        --bg: #05050a;
+        --txt: rgba(255,255,255,.92);
+        --muted: rgba(255,255,255,.66);
+        --glass: rgba(12,12,18,.46);
+        --glass2: rgba(20,20,30,.55);
         --stroke: rgba(255,255,255,.16);
-        --stroke2: rgba(255,255,255,.10);
-        --glass: rgba(0,0,0,.22);
-        --glass2: rgba(255,255,255,.06);
-        --shadow: 0 18px 60px rgba(0,0,0,.65);
-        --radius: 26px;
+        --stroke2: rgba(170,180,255,.28);
+        --shadow: 0 22px 70px rgba(0,0,0,.62);
+        --r: 26px;
       }
 
-      html,body{height:100%;}
+      html,body{ height:100%; }
       body{
         margin:0;
-        color:var(--text);
+        color:var(--txt);
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        background:#000;
-        overflow-x:hidden;
-      }
-
-      /* Fondo */
-      .bg{
-        position:fixed;
-        inset:0;
-        background-image:url("{BG}");
-        background-size:cover;
-        background-position:center;
-        transform:scale(1.03);
-        z-index:-4;
-      }
-
-      /* oscurece + viñeta */
-      .veil{
-        position:fixed;
-        inset:0;
         background:
-          radial-gradient(1200px 700px at 50% 20%, rgba(255,255,255,.06), transparent 60%),
-          radial-gradient(900px 650px at 80% 35%, rgba(140,120,255,.18), transparent 60%),
-          radial-gradient(900px 650px at 20% 80%, rgba(0,255,200,.12), transparent 60%),
-          linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.68));
-        z-index:-3;
-      }
-
-      /* blur real tipo “launcher” */
-      .blur{
-        position:fixed;
-        inset:0;
-        backdrop-filter: blur(14px);
-        z-index:-2;
+          radial-gradient(1100px 740px at 70% 15%, rgba(120,120,255,.18), transparent 55%),
+          radial-gradient(900px 680px at 18% 86%, rgba(0,255,200,.10), transparent 55%),
+          url("{withBase("/bg.jpg")}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
       }
 
       .wrap{
@@ -96,207 +72,182 @@ const HEADER = withBase("header.png");
         flex-direction:column;
       }
 
+      header{
+        padding: 26px 18px 10px;
+        display:flex;
+        justify-content:center;
+      }
+
+      .headerInner{
+        width:min(1080px, 100%);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+      }
+
+      .logo{
+        width: 260px;
+        max-width: 70vw;
+        height: auto;
+        filter: drop-shadow(0 10px 28px rgba(0,0,0,.65));
+        opacity: .98;
+      }
+
       main{
         flex:1;
         display:flex;
         justify-content:center;
-        padding: 28px 18px 34px;
+        padding: 18px 18px 40px;
       }
 
-      .center{
-        width:min(1100px, 100%);
+      .container{
+        width:min(1080px, 100%);
         display:flex;
         flex-direction:column;
-        align-items:center;
         gap: 18px;
       }
 
-      /* Header grande centrado */
-      .hero{
-        display:flex;
-        justify-content:center;
-        width:100%;
-        margin-top: 6px;
-      }
-      .hero img{
-        width:min(560px, 92%);
-        height:auto;
-        filter: drop-shadow(0 24px 60px rgba(0,0,0,.75));
-      }
-
-      /* Launcher cards */
-      .launcher{
-        width:min(980px, 100%);
-        background: var(--glass);
+      .launcherShell{
+        background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
         border: 1px solid var(--stroke);
-        border-radius: calc(var(--radius) + 8px);
+        border-radius: 34px;
         box-shadow: var(--shadow);
-        padding: 22px;
-        backdrop-filter: blur(12px);
+        padding: 26px;
+        backdrop-filter: blur(10px);
       }
 
-      .navGrid{
+      .launcherGrid{
         display:grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 22px;
+        gap: 18px;
+        align-items: stretch;
       }
 
       .navCard{
         text-decoration:none;
-        color:var(--text);
-        background: rgba(0,0,0,.18);
-        border: 1px solid var(--stroke2);
+        color: var(--txt);
+        background: var(--glass);
+        border: 1px solid rgba(255,255,255,.14);
         border-radius: 28px;
-        box-shadow: 0 18px 40px rgba(0,0,0,.32);
+        box-shadow: 0 18px 60px rgba(0,0,0,.38);
         padding: 18px;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        gap: 14px;
-        min-height: 240px;
-        position:relative;
+        position: relative;
         overflow:hidden;
-        transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
-      }
-
-      .navCard::before{
-        content:"";
-        position:absolute;
-        inset:-2px;
-        background: radial-gradient(700px 240px at 50% 0%, rgba(255,255,255,.10), transparent 55%);
-        opacity:.75;
-        pointer-events:none;
+        transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
       }
 
       .navCard:hover{
-        transform: translateY(-3px);
-        background: rgba(255,255,255,.05);
-        border-color: rgba(255,255,255,.22);
+        transform: translateY(-2px);
+        border-color: rgba(210,220,255,.40);
+        background: var(--glass2);
       }
 
       .navCard.active{
-        background: rgba(140,160,255,.07);
-        border-color: rgba(170,190,255,.55);
+        border-color: var(--stroke2);
+        box-shadow: 0 22px 80px rgba(0,0,0,.52);
       }
 
-      .iconBox{
-        width: 100%;
-        flex:1;
+      .iconArea{
+        height: 210px;
+        border-radius: 22px;
+        background: rgba(0,0,0,.22);
+        border: 1px solid rgba(255,255,255,.12);
         display:grid;
         place-items:center;
-        border-radius: 22px;
-        background: rgba(255,255,255,.04);
-        border: 1px solid rgba(255,255,255,.12);
+        overflow:hidden;
       }
 
-      .iconBox img{
+      .iconArea img{
         width: 150px;
         height: 150px;
         object-fit: contain;
+        image-rendering: auto; /* tus gifs son normales, no pixelart */
+        filter: drop-shadow(0 14px 40px rgba(0,0,0,.55));
       }
 
       .labelRow{
-        width:100%;
         display:flex;
         align-items:center;
-        justify-content:center;
-        gap:10px;
-        padding-top: 2px;
+        justify-content:space-between;
+        padding: 14px 6px 2px;
+        gap: 10px;
       }
 
-      .labelRow span{
-        font-size: 18px;
+      .labelRow .label{
+        font-size: 22px;
+        letter-spacing: .3px;
         text-transform: lowercase;
-        opacity:.90;
-        letter-spacing:.2px;
+        opacity: .96;
       }
 
       .dot{
-        width:10px;
-        height:10px;
-        border-radius:999px;
-        background: rgba(255,255,255,.22);
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.26);
       }
 
       .navCard.active .dot{
-        background: rgba(140,190,255,.85);
-        box-shadow: 0 0 0 7px rgba(140,190,255,.12);
+        background: rgba(150,190,255,.85);
+        box-shadow: 0 0 0 6px rgba(150,190,255,.18);
       }
 
-      /* Texto abajo como antes */
-      .content{
-        width:min(980px, 100%);
-        margin-top: 10px;
-        padding: 10px 6px 0;
-        align-self: center;
+      .panel{
+        background: rgba(8,8,12,.50);
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 28px;
+        box-shadow: 0 18px 70px rgba(0,0,0,.44);
+        padding: 22px;
+        backdrop-filter: blur(10px);
       }
 
-      .content :global(h1){
-        margin:0;
-        font-size: 44px;
-        font-weight: 800;
-        letter-spacing: .2px;
-        text-shadow: 0 18px 55px rgba(0,0,0,.65);
-      }
-
-      .content :global(p){
-        margin: 10px 0 0;
-        font-size: 16px;
-        color: var(--muted);
-        line-height: 1.6;
-        max-width: 80ch;
-        text-shadow: 0 18px 55px rgba(0,0,0,.65);
-      }
+      /* contenido */
+      .panel :global(h1){ margin: 0 0 10px; font-size: 34px; }
+      .panel :global(p){ margin: 10px 0; color: rgba(255,255,255,.80); line-height: 1.6; }
 
       footer{
-        padding: 12px 18px 22px;
+        padding: 14px 18px 22px;
         display:flex;
         justify-content:center;
-        color: rgba(255,255,255,.55);
+        color: var(--muted);
         font-size: 12px;
       }
 
       @media (max-width: 900px){
-        .navGrid{ grid-template-columns: 1fr; }
-        .navCard{ min-height: 210px; }
-        .iconBox img{ width: 135px; height: 135px; }
-        .content :global(h1){ font-size: 34px; }
+        .launcherGrid{ grid-template-columns: 1fr; }
+        .iconArea{ height: 190px; }
+        .iconArea img{ width: 140px; height: 140px; }
       }
     </style>
   </head>
 
   <body>
-    <div class="bg"></div>
-    <div class="veil"></div>
-    <div class="blur"></div>
-
     <div class="wrap">
-      <main>
-        <div class="center">
-          <div class="hero">
-            <img src={HEADER} alt="Jai RPG" loading="eager" />
-          </div>
+      <header>
+        <div class="headerInner">
+          <img class="logo" src={withBase("/header.png")} alt="Jai RPG" />
+        </div>
+      </header>
 
-          <section class="launcher" aria-label="launcher">
-            <div class="navGrid">
+      <main>
+        <div class="container">
+          <section class="launcherShell">
+            <div class="launcherGrid">
               {navItems.map((item) => (
-                <a
-                  class={"navCard" + (isActive(item.href) ? " active" : "")}
-                  href={withBase(item.href)}
-                >
-                  <div class="iconBox">
+                <a class={"navCard" + (isActive(item.href) ? " active" : "")} href={withBase(item.href)}>
+                  <div class="iconArea">
                     <img src={withBase(item.icon)} alt={item.label} loading="eager" />
                   </div>
                   <div class="labelRow">
-                    <span>{item.label}</span>
-                    <i class="dot"></i>
+                    <div class="label">{item.label}</div>
+                    <div class="dot"></div>
                   </div>
                 </a>
               ))}
             </div>
           </section>
 
-          <section class="content">
+          <section class="panel">
             <slot />
           </section>
         </div>
