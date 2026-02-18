@@ -10,38 +10,24 @@ const {
 } = Astro.props as Props;
 
 const currentPath = Astro.url.pathname;
-
-// En GitHub Pages tu base es "/rpg/"
 const BASE = import.meta.env.BASE_URL;
 
-// Une paths respetando BASE_URL
 const withBase = (path: string) => {
   const clean = path.replace(/^\//, "");
   return `${BASE}${clean}`;
 };
 
-// Normaliza para comparar rutas
-const normalize = (p: string) => (p.replace(/\/+$/, "") || "/");
+const normalize = (p: string) => p.replace(/\/+$/, "") || "/";
+const isActive = (href: string) => normalize(currentPath) === normalize(withBase(href));
 
-const isActive = (href: string) => {
-  const full = withBase(href);
-  return normalize(currentPath) === normalize(full);
-};
+const navItems = [
+  { label: "home", href: "/", icon: "theme/icons/home.gif" },
+  { label: "blog", href: "/blog/", icon: "theme/icons/blog.gif" },
+  { label: "rpg", href: "/rpg/", icon: "theme/icons/rpg.gif" },
+];
 
-// HOME = landing (launcher al centro)
-const homePath = normalize(withBase("/"));
-const isHomeLanding = normalize(currentPath) === homePath;
-
-// Assets en /public
 const BG = withBase("bg.jpg");
 const HEADER = withBase("header.png");
-
-// Íconos en public/theme/icons/
-const navItems = [
-  { key: "home", label: "home", href: "/", icon: "theme/icons/home.gif" },
-  { key: "blog", label: "blog", href: "/blog/", icon: "theme/icons/blog.gif" },
-  { key: "rpg", label: "rpg", href: "/rpg/", icon: "theme/icons/rpg.gif" },
-];
 ---
 
 <!doctype html>
@@ -54,417 +40,269 @@ const navItems = [
 
     <style>
       :root{
-        --bg: #050508;
         --text: rgba(255,255,255,.92);
-        --muted: rgba(255,255,255,.68);
-
-        --glass: rgba(20, 20, 28, .42);
-        --glass2: rgba(20, 20, 28, .56);
+        --muted: rgba(255,255,255,.72);
         --stroke: rgba(255,255,255,.16);
-        --stroke2: rgba(255,255,255,.26);
-
-        --shadow: 0 18px 60px rgba(0,0,0,.70);
+        --stroke2: rgba(255,255,255,.10);
+        --glass: rgba(0,0,0,.22);
+        --glass2: rgba(255,255,255,.06);
+        --shadow: 0 18px 60px rgba(0,0,0,.65);
         --radius: 26px;
-
-        --launcherW: 340px;
-        --gap: 22px;
       }
 
       html,body{height:100%;}
       body{
         margin:0;
         color:var(--text);
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-        background: var(--bg);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        background:#000;
         overflow-x:hidden;
       }
 
       /* Fondo */
       .bg{
-        position: fixed;
-        inset: 0;
-        z-index: -2;
-        background-image: url("{BG}");
-        background-size: cover;
-        background-position: center;
-        transform: scale(1.03);
+        position:fixed;
+        inset:0;
+        background-image:url("{BG}");
+        background-size:cover;
+        background-position:center;
+        transform:scale(1.03);
+        z-index:-4;
       }
-      .vignette{
-        position: fixed;
-        inset: 0;
-        z-index: -1;
+
+      /* oscurece + viñeta */
+      .veil{
+        position:fixed;
+        inset:0;
         background:
-          radial-gradient(1200px 900px at 65% 20%, rgba(70,90,255,.14), transparent 55%),
-          radial-gradient(900px 700px at 20% 85%, rgba(0,255,210,.10), transparent 60%),
-          radial-gradient(900px 900px at 50% 50%, rgba(0,0,0,.25), rgba(0,0,0,.72));
+          radial-gradient(1200px 700px at 50% 20%, rgba(255,255,255,.06), transparent 60%),
+          radial-gradient(900px 650px at 80% 35%, rgba(140,120,255,.18), transparent 60%),
+          radial-gradient(900px 650px at 20% 80%, rgba(0,255,200,.12), transparent 60%),
+          linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.68));
+        z-index:-3;
       }
 
-      /* =========================
-         LANDING (HOME)
-         ========================= */
-      .landing{
-        min-height: 100vh;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        padding: 24px;
-        gap: 20px;
-      }
-
-      .logo{
-        width: min(520px, 88vw);
-        border-radius: 16px;
-        overflow:hidden;
-        box-shadow: 0 18px 60px rgba(0,0,0,.55);
-      }
-      .logo img{
-        width: 100%;
-        height: auto;
-        display:block;
-      }
-
-      .launcherCenter{
-        width: min(980px, 100%);
-        display:grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 26px;
-        align-items:stretch;
-      }
-
-      .tile{
-        border-radius: 26px;
-        border: 1px solid rgba(255,255,255,.18);
-        background: rgba(0,0,0,.22);
-        box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      /* blur real tipo “launcher” */
+      .blur{
+        position:fixed;
+        inset:0;
         backdrop-filter: blur(14px);
-        text-decoration:none;
-        color: var(--text);
-        overflow:hidden;
-        transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+        z-index:-2;
       }
 
-      .tile:hover{
-        transform: translateY(-3px);
-        border-color: rgba(255,255,255,.28);
-        background: rgba(0,0,0,.28);
-      }
-
-      .tileTop{
-        height: 240px;
-        display:grid;
-        place-items:center;
-        background:
-          radial-gradient(280px 220px at 50% 30%, rgba(255,255,255,.10), transparent 60%),
-          rgba(255,255,255,.03);
-      }
-
-      .tileTop img{
-        width: 160px;
-        height: 160px;
-        object-fit: contain;
-        filter: drop-shadow(0 18px 26px rgba(0,0,0,.55));
-      }
-
-      .tileBottom{
-        padding: 14px 16px 16px;
-        display:flex;
-        justify-content:center;
-        border-top: 1px solid rgba(255,255,255,.10);
-        background: rgba(255,255,255,.03);
-        font-size: 18px;
-        text-transform: lowercase;
-        letter-spacing: .2px;
-      }
-
-      .landingText{
-        width: min(980px, 100%);
-        margin-top: 6px;
-        padding: 0 4px;
-      }
-
-      .landingText h1{
-        margin: 0;
-        font-size: 46px;
-        text-shadow: 0 10px 40px rgba(0,0,0,.55);
-      }
-      .landingText p{
-        margin: 12px 0 0;
-        color: var(--muted);
-        font-size: 16px;
-        line-height: 1.65;
-        text-shadow: 0 10px 40px rgba(0,0,0,.55);
-      }
-
-      @media (max-width: 980px){
-        .launcherCenter{ grid-template-columns: 1fr; gap: 16px; }
-        .tileTop{ height: 200px; }
-        .tileTop img{ width: 130px; height: 130px; }
-        .landingText h1{ font-size: 38px; }
-      }
-
-      /* =========================
-         APP LAYOUT (BLOG / RPG)
-         ========================= */
       .wrap{
         min-height:100%;
         display:flex;
         flex-direction:column;
       }
 
-      header.appHeader{
-        padding: 28px 28px 8px;
-        display:flex;
-        justify-content:center;
-      }
-
-      .headerInner{
-        width: min(1200px, 100%);
-        display:flex;
-        align-items:flex-end;
-        justify-content:space-between;
-        gap: 14px;
-      }
-
-      .titleBlock h1{
-        margin: 0;
-        font-size: 44px;
-        letter-spacing: .2px;
-        text-shadow: 0 10px 40px rgba(0,0,0,.55);
-      }
-      .titleBlock p{
-        margin: 10px 0 0;
-        color: var(--muted);
-        font-size: 16px;
-        text-shadow: 0 10px 40px rgba(0,0,0,.55);
-      }
-
-      main.appMain{
+      main{
         flex:1;
         display:flex;
         justify-content:center;
-        padding: 14px 28px 34px;
+        padding: 28px 18px 34px;
       }
 
-      .layout{
-        width: min(1200px, 100%);
-        display:grid;
-        grid-template-columns: 1fr var(--launcherW);
-        gap: var(--gap);
-        align-items:start;
+      .center{
+        width:min(1100px, 100%);
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap: 18px;
       }
 
-      .panel{
+      /* Header grande centrado */
+      .hero{
+        display:flex;
+        justify-content:center;
+        width:100%;
+        margin-top: 6px;
+      }
+      .hero img{
+        width:min(560px, 92%);
+        height:auto;
+        filter: drop-shadow(0 24px 60px rgba(0,0,0,.75));
+      }
+
+      /* Launcher cards */
+      .launcher{
+        width:min(980px, 100%);
         background: var(--glass);
         border: 1px solid var(--stroke);
-        border-radius: var(--radius);
+        border-radius: calc(var(--radius) + 8px);
         box-shadow: var(--shadow);
-        backdrop-filter: blur(14px);
         padding: 22px;
-        min-height: 560px;
-      }
-
-      aside.launcher{
-        position: sticky;
-        top: 18px;
-        background: var(--glass2);
-        border: 1px solid var(--stroke);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(14px);
-        padding: 18px;
-      }
-
-      .launcherTitle{
-        font-size: 12px;
-        letter-spacing: .18em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,.62);
-        margin: 2px 6px 14px;
+        backdrop-filter: blur(12px);
       }
 
       .navGrid{
         display:grid;
-        gap: 16px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 22px;
       }
 
       .navCard{
-        display:grid;
-        grid-template-rows: 150px auto;
-        border-radius: 22px;
-        border: 1px solid rgba(255,255,255,.14);
-        background: rgba(0,0,0,.22);
         text-decoration:none;
-        color: var(--text);
+        color:var(--text);
+        background: rgba(0,0,0,.18);
+        border: 1px solid var(--stroke2);
+        border-radius: 28px;
+        box-shadow: 0 18px 40px rgba(0,0,0,.32);
+        padding: 18px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap: 14px;
+        min-height: 240px;
+        position:relative;
         overflow:hidden;
-        transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+        transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+      }
+
+      .navCard::before{
+        content:"";
+        position:absolute;
+        inset:-2px;
+        background: radial-gradient(700px 240px at 50% 0%, rgba(255,255,255,.10), transparent 55%);
+        opacity:.75;
+        pointer-events:none;
       }
 
       .navCard:hover{
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        background: rgba(255,255,255,.05);
         border-color: rgba(255,255,255,.22);
-        background: rgba(0,0,0,.28);
       }
 
       .navCard.active{
-        border-color: rgba(150,170,255,.45);
-        box-shadow: 0 18px 55px rgba(0,0,0,.55);
+        background: rgba(140,160,255,.07);
+        border-color: rgba(170,190,255,.55);
       }
 
-      .iconArea{
+      .iconBox{
+        width: 100%;
+        flex:1;
         display:grid;
         place-items:center;
-        background:
-          radial-gradient(240px 180px at 50% 35%, rgba(255,255,255,.08), transparent 60%),
-          rgba(255,255,255,.03);
+        border-radius: 22px;
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.12);
       }
 
-      .iconArea img{
-        width: 120px;
-        height: 120px;
+      .iconBox img{
+        width: 150px;
+        height: 150px;
         object-fit: contain;
-        filter: drop-shadow(0 14px 22px rgba(0,0,0,.55));
       }
 
-      .labelArea{
-        padding: 14px 16px 16px;
+      .labelRow{
+        width:100%;
         display:flex;
         align-items:center;
-        justify-content:space-between;
-        gap: 10px;
-        background: rgba(255,255,255,.03);
-        border-top: 1px solid rgba(255,255,255,.10);
+        justify-content:center;
+        gap:10px;
+        padding-top: 2px;
       }
 
-      .labelArea span{
+      .labelRow span{
         font-size: 18px;
         text-transform: lowercase;
-        opacity: .95;
+        opacity:.90;
+        letter-spacing:.2px;
       }
 
       .dot{
-        width: 10px;
-        height: 10px;
-        border-radius: 999px;
-        background: rgba(255,255,255,.25);
+        width:10px;
+        height:10px;
+        border-radius:999px;
+        background: rgba(255,255,255,.22);
       }
 
       .navCard.active .dot{
-        background: rgba(130,190,255,.95);
-        box-shadow: 0 0 0 6px rgba(130,190,255,.12);
+        background: rgba(140,190,255,.85);
+        box-shadow: 0 0 0 7px rgba(140,190,255,.12);
       }
 
-      .panel :global(h1){ margin: 0 0 10px; font-size: 34px; }
-      .panel :global(h2){ margin: 18px 0 10px; font-size: 22px; }
-      .panel :global(p){ margin: 10px 0; color: rgba(255,255,255,.86); line-height: 1.65; }
+      /* Texto abajo como antes */
+      .content{
+        width:min(980px, 100%);
+        margin-top: 10px;
+        padding: 10px 6px 0;
+        align-self: center;
+      }
+
+      .content :global(h1){
+        margin:0;
+        font-size: 44px;
+        font-weight: 800;
+        letter-spacing: .2px;
+        text-shadow: 0 18px 55px rgba(0,0,0,.65);
+      }
+
+      .content :global(p){
+        margin: 10px 0 0;
+        font-size: 16px;
+        color: var(--muted);
+        line-height: 1.6;
+        max-width: 80ch;
+        text-shadow: 0 18px 55px rgba(0,0,0,.65);
+      }
 
       footer{
-        padding: 14px 28px 24px;
+        padding: 12px 18px 22px;
         display:flex;
         justify-content:center;
         color: rgba(255,255,255,.55);
         font-size: 12px;
       }
 
-      @media (max-width: 980px){
-        header.appHeader{ padding: 22px 18px 8px; }
-        main.appMain{ padding: 12px 18px 90px; }
-        .layout{ grid-template-columns: 1fr; }
-        aside.launcher{
-          position: fixed;
-          left: 14px;
-          right: 14px;
-          bottom: 14px;
-          top: auto;
-          padding: 12px;
-          border-radius: 999px;
-        }
-        .launcherTitle{ display:none; }
-        .navGrid{
-          grid-auto-flow: column;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 10px;
-        }
-        .navCard{
-          grid-template-rows: 1fr;
-          border-radius: 999px;
-        }
-        .iconArea img{ width: 44px; height: 44px; }
-        .labelArea{ display:none; }
+      @media (max-width: 900px){
+        .navGrid{ grid-template-columns: 1fr; }
+        .navCard{ min-height: 210px; }
+        .iconBox img{ width: 135px; height: 135px; }
+        .content :global(h1){ font-size: 34px; }
       }
     </style>
   </head>
 
   <body>
     <div class="bg"></div>
-    <div class="vignette"></div>
+    <div class="veil"></div>
+    <div class="blur"></div>
 
-    {isHomeLanding ? (
-      <div class="landing">
-        <div class="logo">
-          <img src={HEADER} alt="Jai RPG" loading="eager" />
-        </div>
+    <div class="wrap">
+      <main>
+        <div class="center">
+          <div class="hero">
+            <img src={HEADER} alt="Jai RPG" loading="eager" />
+          </div>
 
-        <div class="launcherCenter">
-          {navItems.map((item) => (
-            <a class="tile" href={withBase(item.href)}>
-              <div class="tileTop">
-                <img src={withBase(item.icon)} alt={item.label} loading="eager" />
-              </div>
-              <div class="tileBottom">{item.label}</div>
-            </a>
-          ))}
-        </div>
-
-        <div class="landingText">
-          <h1>Home</h1>
-          <p>Bienvenida. Acá después armamos el dashboard: quests, hábitos, stats y notas rápidas.</p>
-        </div>
-      </div>
-    ) : (
-      <div class="wrap">
-        <header class="appHeader">
-          <div class="headerInner">
-            <div class="titleBlock">
-              <h1>{title}</h1>
-              <p>{description}</p>
+          <section class="launcher" aria-label="launcher">
+            <div class="navGrid">
+              {navItems.map((item) => (
+                <a
+                  class={"navCard" + (isActive(item.href) ? " active" : "")}
+                  href={withBase(item.href)}
+                >
+                  <div class="iconBox">
+                    <img src={withBase(item.icon)} alt={item.label} loading="eager" />
+                  </div>
+                  <div class="labelRow">
+                    <span>{item.label}</span>
+                    <i class="dot"></i>
+                  </div>
+                </a>
+              ))}
             </div>
-          </div>
-        </header>
+          </section>
 
-        <main class="appMain">
-          <div class="layout">
-            <section class="panel">
-              <slot />
-            </section>
+          <section class="content">
+            <slot />
+          </section>
+        </div>
+      </main>
 
-            <aside class="launcher">
-              <div class="launcherTitle">Navegación</div>
-
-              <div class="navGrid">
-                {navItems.map((item) => (
-                  <a
-                    class={"navCard" + (isActive(item.href) ? " active" : "")}
-                    href={withBase(item.href)}
-                  >
-                    <div class="iconArea">
-                      <img src={withBase(item.icon)} alt={item.label} loading="eager" />
-                    </div>
-                    <div class="labelArea">
-                      <span>{item.label}</span>
-                      <i class="dot"></i>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </aside>
-          </div>
-        </main>
-
-        <footer>
-          <div>Jaira Life RPG · GitHub Pages</div>
-        </footer>
-      </div>
-    )}
+      <footer>Jaira Life RPG · GitHub Pages</footer>
+    </div>
   </body>
 </html>
